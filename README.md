@@ -25,3 +25,36 @@ crawl_list = [
 output = crawl_video_sites(crawl_list)
 
 ```
+
+
+#### Example input fetch list
+
+```
+[
+    [
+        "Health Ranger Report",
+        "brighteon",
+        "hrreport"
+    ],
+    [
+        "Sydney Watson",
+        "youtube",
+        "UCSFy-1JrpZf0tFlRZfo-Rvw"
+    ],
+    [
+        "Computing Forever",
+        "bitchute",
+        "hybm74uihjkf"
+    ],
+    [
+        "ThePeteSantilliShow",
+        "rumble",
+        "ThePeteSantilliShow"
+    ],
+    [
+        "Macroaggressions",
+        "odysee",
+        "Macroaggressions"
+    ]
+]
+```
