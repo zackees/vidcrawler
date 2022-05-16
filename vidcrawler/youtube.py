@@ -21,7 +21,7 @@ from keyvalue_sqlite import KeyValueSqlite as KeyValueDB  # type: ignore
 
 from .date import iso8601_duration_as_seconds, iso_fmt, now_local
 from .error import log_error
-from .fetcher import _fetch_html_using_request_lib, fetch_html
+from .fetch_html import fetch_html_using_request_lib, fetch_html
 from .video_info import VideoInfo
 
 _ENABLE_PROFILE_FETCH = False
@@ -172,7 +172,7 @@ def _fetch_youtube_channel_via_html(
     # Now the fetch the videos list from the channels canonical name
     # url.
     url = f"https://youtube.com/c/{canonical_name}/videos"
-    chan_html_doc = _fetch_html_using_request_lib(url)
+    chan_html_doc = fetch_html_using_request_lib(url)
     # Inside a json file there is a bunch of videos that can be found
     # using the following regex.
     pat = r"{\"videoId\":\"([^\"]+)\","

@@ -17,7 +17,7 @@ except BaseException:  # pylint: disable=broad-except
     USE_CURL = False
 
 
-def _fetch_html_using_request_lib(
+def fetch_html_using_request_lib(
     url: str, timeout: Optional[int] = None
 ) -> str:
     timeout = timeout or 10
@@ -29,7 +29,7 @@ def _fetch_html_using_request_lib(
     return resp.content.decode(resp.apparent_encoding)
 
 
-def _fetch_html_using_curl(url: str, timeout: Optional[int] = None) -> str:
+def fetch_html_using_curl(url: str, timeout: Optional[int] = None) -> str:
     """Uses the curl library to do a fetch"""
     timeout = int(timeout or 10)
     try:
@@ -46,6 +46,6 @@ def _fetch_html_using_curl(url: str, timeout: Optional[int] = None) -> str:
 
 def fetch_html(url: str) -> str:
     if USE_CURL:
-        return _fetch_html_using_curl(url)
+        return fetch_html_using_curl(url)
     else:
-        return _fetch_html_using_request_lib(url)
+        return fetch_html_using_request_lib(url)

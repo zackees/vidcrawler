@@ -12,7 +12,7 @@ from vidcrawler.bitchute import (
     fetch_rss_url,
     parse_rss_feed,
 )
-from vidcrawler.fetcher import fetch_html
+from vidcrawler.fetch_html import fetch_html
 
 
 class BitchuteScraperTester(unittest.TestCase):

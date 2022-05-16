@@ -12,7 +12,7 @@ from typing import List
 from bs4 import BeautifulSoup  # type: ignore
 
 from .date import iso_fmt, now_local
-from .fetcher import _fetch_html_using_request_lib as fetch_html
+from .fetch_html import fetch_html_using_request_lib as fetch_html
 from .video_info import VideoInfo
 
 

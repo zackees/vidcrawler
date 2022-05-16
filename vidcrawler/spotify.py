@@ -11,7 +11,7 @@ from typing import List
 from bs4 import BeautifulSoup  # type: ignore
 
 from .date import iso_fmt
-from .fetcher import _fetch_html_using_request_lib as fetch_html
+from .fetch_html import fetch_html_using_request_lib as fetch_html
 from .video_info import VideoInfo
 
 _TIMEOUT_EPISODE = 20  # Wow these can take a long time.
@@ -29,7 +29,9 @@ def fetch_spotify_today(channel_name: str, channel: str) -> List[VideoInfo]:
     output: List[VideoInfo] = []
     now_datestr = iso_fmt(now_local())
     channel_url = f"https://open.spotify.com/show/{channel}"
-    sys.stdout.write(f"Spotify crawler visiting {channel_name} ({channel_url})\n")
+    sys.stdout.write(
+        f"Spotify crawler visiting {channel_name} ({channel_url})\n"
+    )
     html_doc = fetch_html(channel_url)
     html_dom = BeautifulSoup(html_doc, "html.parser")
     music_doms = html_dom.findAll("meta", {"property": "music:song"})
@@ -79,7 +81,9 @@ def fetch_spotify_today(channel_name: str, channel: str) -> List[VideoInfo]:
 
 
 def unit_test() -> None:
-    fetch_spotify_today(channel_name="Joe Rogan", channel="4rOoJ6Egrf8K2IrywzwOMk")
+    fetch_spotify_today(
+        channel_name="Joe Rogan", channel="4rOoJ6Egrf8K2IrywzwOMk"
+    )
 
 
 if __name__ == "__main__":

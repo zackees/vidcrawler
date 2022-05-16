@@ -5,7 +5,7 @@ import unittest
 from typing import List
 
 import requests
-from vidcrawler.fetcher import fetch_html
+from vidcrawler.fetch_html import fetch_html
 from vidcrawler.video_info import VideoInfo
 from vidcrawler.youtube import fetch_youtube_today, parse_youtube_video
 

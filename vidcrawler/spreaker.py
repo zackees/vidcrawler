@@ -11,13 +11,15 @@ import feedparser  # type: ignore
 
 from vidcrawler.date import iso_fmt, now_local
 
-from .fetcher import _fetch_html_using_request_lib as fetch_html
+from .fetch_html import fetch_html_using_request_lib as fetch_html
 from .video_info import VideoInfo
 
 # EXPERIMENTAL - parses sara carter from spreaker.
 
 
-def rss_element_to_video_info(channel_name: str, rss_element: dict) -> VideoInfo:
+def rss_element_to_video_info(
+    channel_name: str, rss_element: dict
+) -> VideoInfo:
     # content = rss_element.get('content')
     thumbnail_img = rss_element["googleplay_image"]["href"]
     link = rss_element["link"]

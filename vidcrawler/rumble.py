@@ -13,7 +13,7 @@ import requests
 from bs4 import BeautifulSoup  # type: ignore
 
 from .date import iso_fmt, now_local
-from .fetcher import _fetch_html_using_request_lib as fetch_html
+from .fetch_html import fetch_html_using_request_lib as fetch_html
 from .video_info import VideoInfo
 
 
@@ -43,7 +43,9 @@ def fetch_rumble(channel: str) -> Tuple[str, str]:
 # type: ignore
 
 
-def fetch_rumble_channel_today(channel_name: str, channel: str) -> List[VideoInfo]:
+def fetch_rumble_channel_today(
+    channel_name: str, channel: str
+) -> List[VideoInfo]:
     # TODO: Fine grained try...catch blocks.
     output: List[VideoInfo] = []
     html_doc: str = ""
