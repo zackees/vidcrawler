@@ -28,7 +28,7 @@ output = crawl_video_sites(crawl_list)
 
 ## Testing
 
-``
+```
 $ vidcrawler_test
 ```
 
