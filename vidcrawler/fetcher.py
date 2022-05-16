@@ -2,9 +2,10 @@
 Fetcher for html
 """
 
-# pylint: disable=line-too-long,missing-function-docstring,consider-using-f-string,too-many-locals,invalid-name,no-else-return
-
 import subprocess
+
+# pylint: disable=line-too-long,missing-function-docstring,consider-using-f-string,too-many-locals,invalid-name,no-else-return
+import sys
 from typing import Optional
 
 import requests
@@ -16,7 +17,9 @@ except BaseException:  # pylint: disable=broad-except
     USE_CURL = False
 
 
-def _fetch_html_using_request_lib(url: str, timeout: Optional[int] = None) -> str:
+def _fetch_html_using_request_lib(
+    url: str, timeout: Optional[int] = None
+) -> str:
     timeout = timeout or 10
     # Workaround for long request time on windows
     # see https://github.com/psf/requests/issues/4023
@@ -29,10 +32,15 @@ def _fetch_html_using_request_lib(url: str, timeout: Optional[int] = None) -> st
 def _fetch_html_using_curl(url: str, timeout: Optional[int] = None) -> str:
     """Uses the curl library to do a fetch"""
     timeout = int(timeout or 10)
-    out: bytes = subprocess.check_output(
-        f"curl --max-time {timeout} -s -X GET {url}",
-        shell=True,
-    )
+    try:
+        out: bytes = subprocess.check_output(
+            f"curl --max-time {timeout} -s -X GET {url}",
+            shell=True,
+        )
+    except subprocess.CalledProcessError as err:
+        if int(err.returncode) == 3221225786:
+            print(f"{__file__}: keyboard exit")
+            sys.exit(1)
     return out.decode("utf-8")
 
 

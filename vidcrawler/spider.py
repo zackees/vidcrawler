@@ -32,7 +32,7 @@ ODYSEE = "odysee"
 GAB = "gab"
 SPOTIFY = "spotify"
 
-CALLBACK_MAP = {
+CRAWLER_MAP = {
     RUMBLE: fetch_rumble_channel_today,
     BITCHUTE: fetch_bitchute_today,
     BRIGHTEON: fetch_brighteon_today,
@@ -56,7 +56,7 @@ def _fetch_all(
     out_queue: queue.Queue,
     bad_channels: queue.Queue,
 ) -> None:
-    callback = CALLBACK_MAP[source_name]
+    callback = CRAWLER_MAP[source_name]
     if _SCRAPE_RANDOMIZE_ORDER:
         random.shuffle(fetch_list)
 
@@ -67,7 +67,7 @@ def _fetch_all(
                 for vid in videos:
                     out_queue.put(vid)
             except KeyboardInterrupt:
-                raise
+                sys.exit(1)
             except BaseException as e:
                 traceback.print_exc()
                 entry = (channel_name, str(e))
@@ -138,8 +138,15 @@ def _threaded_fetch_channels(
         if finish_cnt == len(threads):
             break
         _yield_thread_for_keyboard_interrupt()
-    for thread in threads:
-        thread.join()
+    # Busy loop here allows keyboard interrupts to filter through to the
+    # top and halt the execution of the program right away.
+    while len(threads):
+        for i, thread in enumerate(threads):
+            if not thread.is_alive():
+                thread.join()
+                threads.pop(i)
+                break  # Start the outer loop again
+        time.sleep(0.1)
     while not queue_out.empty():
         out_videos.append(queue_out.get_nowait())
     for c in list(queue_bad_channels.queue):
@@ -174,7 +181,9 @@ def crawl_video_sites(channels: List[Tuple[str, str, str]], use_threads: bool = 
         _singlethreaded_fetch(channels, vid_infos, bad_channels)
     # apply_fetch_images(vid_infos)
     out_data: List[Dict] = VideoInfo.to_plain_list(vid_infos)  # type: ignore
-    json_str = json.dumps(out_data, indent=2, sort_keys=True, ensure_ascii=False)
+    json_str = json.dumps(
+        out_data, indent=2, sort_keys=True, ensure_ascii=False
+    )
     bad_channels.sort()
     if bad_channels:
         print("#############")
