@@ -194,24 +194,3 @@ def crawl_video_sites(channels: List[Tuple[str, str, str]], use_threads: bool = 
     else:
         print("No bad channels detected!")
     return json_str
-
-
-def main() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--out", help="output path")
-    parser.add_argument("--singlethreaded", action="store_true")
-    args = parser.parse_args()
-    time_start = time.time()
-    json_str: str = crawl_video_sites([], use_threads=not args.singlethreaded)
-    time_delta = time.time() - time_start
-    if args.out:
-        with open(args.out, "w") as fd:
-            fd.write(json_str)
-            fd.write("\n")
-    else:
-        print(json_str)
-    sys.stderr.write("\nTook %.1f seconds to fetch content\n\n" % time_delta)
-
-
-if __name__ == "__main__":
-    main()
