@@ -16,10 +16,15 @@ from .date import iso_fmt, now_local
 from .error import log_error
 
 # bitchute is bombing out on CURL so switch to the request-lib get version.
-from .fetch_html import fetch_html_using_request_lib as fetch_html
+from .fetch_html import fetch_html_using_request_lib
 from .video_info import VideoInfo
 
 _EMBED_BITCHUTE_PATT = r"/video/(.+)/"
+USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36"
+
+
+def fetch_html(url: str) -> str:
+    return fetch_html_using_request_lib(url, user_agent=USER_AGENT)
 
 
 def parse_rss_url(html_doc: str) -> Optional[str]:

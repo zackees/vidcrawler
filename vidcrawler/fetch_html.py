@@ -18,12 +18,17 @@ except BaseException:  # pylint: disable=broad-except
 
 
 def fetch_html_using_request_lib(
-    url: str, timeout: Optional[int] = None
+    url: str,
+    timeout: Optional[int] = None,
+    user_agent: Optional[str] = None,
 ) -> str:
     timeout = timeout or 10
     # Workaround for long request time on windows
     # see https://github.com/psf/requests/issues/4023
     headers = {"Connection": "close"}
+    # headers = {"Connection": "close"}
+    if user_agent:
+        headers["User-Agent"] = user_agent
     resp = requests.get(url, timeout=timeout, params={}, headers=headers)
     resp.raise_for_status()
     return resp.content.decode(resp.apparent_encoding)
