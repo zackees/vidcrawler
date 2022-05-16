@@ -127,9 +127,7 @@ setup(
     ),
     package_data={},
     include_package_data=True,
-    extras_require={
-        "test": ["pytest"],
-    },
+
     cmdclass={
         "upload": UploadCommand,
     },
