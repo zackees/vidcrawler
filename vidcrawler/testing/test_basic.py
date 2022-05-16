@@ -7,11 +7,10 @@
 import unittest
 
 
-class DatabaseTester(unittest.TestCase):
-    """Tester for the Full Search Text Database"""
+class VidCrawlerTester(unittest.TestCase):
+    """Tests the vidcrawler"""
 
     def test_sanity(self) -> None:  # pylint: disable=no-self-use
-        """Test the full text search database."""
         return
 
 
