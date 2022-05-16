@@ -1,0 +1,8 @@
+types-python-dateutil
+python-dateutil
+pydantic
+Whoosh
+pytz
+
+[test]
+pytest

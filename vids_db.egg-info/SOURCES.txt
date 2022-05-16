@@ -1,0 +1,17 @@
+MANIFEST.in
+README.md
+requirements.testing.txt
+requirements.txt
+setup.py
+vids_db/__init__.py
+vids_db/database.py
+vids_db/date.py
+vids_db/db_full_text_search.py
+vids_db/db_sqlite_video.py
+vids_db/models.py
+vids_db/version.py
+vids_db.egg-info/PKG-INFO
+vids_db.egg-info/SOURCES.txt
+vids_db.egg-info/dependency_links.txt
+vids_db.egg-info/requires.txt
+vids_db.egg-info/top_level.txt

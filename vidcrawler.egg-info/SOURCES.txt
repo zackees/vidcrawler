@@ -1,0 +1,12 @@
+MANIFEST.in
+README.md
+requirements.testing.txt
+requirements.txt
+setup.py
+vidcrawler/__init__.py
+vidcrawler/version.py
+vidcrawler.egg-info/PKG-INFO
+vidcrawler.egg-info/SOURCES.txt
+vidcrawler.egg-info/dependency_links.txt
+vidcrawler.egg-info/requires.txt
+vidcrawler.egg-info/top_level.txt

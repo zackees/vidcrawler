@@ -1,0 +1,34 @@
+{
+    "python.autoComplete.extraPaths": [
+        "."
+    ],
+    "python.venvFolders": [
+        "${workspaceFolder}/venv",
+    ],
+    "python.terminal.activateEnvInCurrentTerminal": true,
+    "python.defaultInterpreterPath": "${workspaceFolder}/venv/bin/python",
+    "python.terminal.activateEnvironment": true,
+    "python.linting.pylintEnabled": true,
+    "files.eol": "\n", // Unix
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": false,
+    "editor.formatOnSave": true,
+    "python.formatting.provider": "black",
+    "python.formatting.blackArgs": [
+        "--line-length=80"
+    ],
+    "python.sortImports.args": [
+        "--profile",
+        "black"
+    ],
+    "[python]": {
+        "editor.codeActionsOnSave": {
+            "source.fixAll": true,
+            "source.organizeImports": true
+        }
+    },
+    "python.analysis.extraPaths": [
+        "."
+    ],
+}
