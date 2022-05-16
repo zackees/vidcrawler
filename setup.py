@@ -130,6 +130,7 @@ setup(
     entry_points={
         "console_scripts": [
             "vidcrawler = vidcrawler.cmd:main",
+            "vidcrawler_test = vidcrawler.cmd:main",
         ],
     },
     cmdclass={
