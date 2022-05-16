@@ -64,3 +64,8 @@ $ vidcrawler_test
     ]
 ]
 ```
+
+# Releases
+
+  * 1.0.1: improves command line
+  * 1.0.0: Initial release
