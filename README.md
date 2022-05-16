@@ -26,6 +26,9 @@ output = crawl_video_sites(crawl_list)
 
 ```
 
+"source" and "channel_id" are used to generate the video-platform-specific urls to fetch data. The "channel name"
+is echo'd back in the generated json feeds, but doesn't not affect the fetching process in any way.
+
 ## Testing
 
 ```
