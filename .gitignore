@@ -35,6 +35,7 @@ share/python-wheels/
 *.egg
 MANIFEST
 vidcrawler/testing/out_list.json
+vidcrawler/cache
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
