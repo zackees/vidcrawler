@@ -17,9 +17,7 @@ from .video_info import VideoInfo
 # EXPERIMENTAL - parses sara carter from spreaker.
 
 
-def rss_element_to_video_info(
-    channel_name: str, rss_element: dict
-) -> VideoInfo:
+def rss_element_to_video_info(channel_name: str, rss_element: dict) -> VideoInfo:
     # content = rss_element.get('content')
     thumbnail_img = rss_element["googleplay_image"]["href"]
     link = rss_element["link"]

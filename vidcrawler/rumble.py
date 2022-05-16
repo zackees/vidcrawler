@@ -43,9 +43,7 @@ def fetch_rumble(channel: str) -> Tuple[str, str]:
 # type: ignore
 
 
-def fetch_rumble_channel_today(
-    channel_name: str, channel: str
-) -> List[VideoInfo]:
+def fetch_rumble_channel_today(channel_name: str, channel: str) -> List[VideoInfo]:
     # TODO: Fine grained try...catch blocks.
     output: List[VideoInfo] = []
     html_doc: str = ""

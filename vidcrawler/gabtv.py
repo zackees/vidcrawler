@@ -41,9 +41,7 @@ def fetch_views(channel: str) -> Dict[str, str]:
             id = _PATTERN_DATA_EPISODE_ID.findall(str_episode)[0]
         except IndexError as e:
             raise IndexError(f"idx: {i}, url: {html_url}") from e
-        dom_published = dom_episode.find(
-            "div", {"class": "studio-episode-published"}
-        )
+        dom_published = dom_episode.find("div", {"class": "studio-episode-published"})
         dom_spans = dom_published.findAll("span")
         views = dom_spans[0].text
         out[id] = views
@@ -74,9 +72,7 @@ def fetch_gabtv_today(channel_name: str, channel_id: str) -> List[VideoInfo]:
             image: str = item["image"]
             published_date: str = item["date_modified"]
         except KeyError as ke:
-            log_error(
-                err_str=f"Error while parsing {channel_id} because of {ke}\n"
-            )
+            log_error(err_str=f"Error while parsing {channel_id} because of {ke}\n")
             continue
 
         # GabTV does not PUBLISH VIEWS IN IT'S FEED.

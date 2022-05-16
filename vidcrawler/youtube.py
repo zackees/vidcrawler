@@ -37,9 +37,7 @@ def _get_cache(cache_path: str) -> KeyValueDB:
     return KeyValueDB(cache_path, "cached_youtube_video_attributes")
 
 
-def _try_get_cached_duration(
-    url: str, cache_path: Optional[str]
-) -> Optional[int]:
+def _try_get_cached_duration(url: str, cache_path: Optional[str]) -> Optional[int]:
     if cache_path is None:
         return None
     cache = _get_cache(cache_path)
@@ -122,9 +120,7 @@ def _fetch_youtube_channel_via_rss(
             )
             vid_html = fetch_html(entry.link)
             if vid_html is None:
-                sys.stdout.write(
-                    f"    Error - vid_html from {entry.link} was None"
-                )
+                sys.stdout.write(f"    Error - vid_html from {entry.link} was None")
             else:
                 try:
                     vid_info = parse_youtube_video(vid_html)
@@ -189,9 +185,9 @@ def _fetch_youtube_channel_via_html(
     for i, vid_url in enumerate(vid_urls):
         if limit != -1 and i >= limit:
             break
-        stdout = subprocess.check_output(
-            f"youtube-dl {vid_url} -j", shell=True
-        ).decode("utf-8")
+        stdout = subprocess.check_output(f"youtube-dl {vid_url} -j", shell=True).decode(
+            "utf-8"
+        )
         data = json.loads(stdout)
         # Future:
         #  title = data['title']
@@ -273,9 +269,7 @@ def parse_youtube_video(html_doc: str) -> dict:
             text = top_dom.text
         except Exception as err2:  # pylint: disable=broad-except
             print(f"{__file__}: Error: {err2}")
-        sys.stdout.write(
-            f"{__file__}: \ntop_dom.text: {text}\n\nError: {err}\n"
-        )
+        sys.stdout.write(f"{__file__}: \ntop_dom.text: {text}\n\nError: {err}\n")
         raise
     try:
         dom = top_dom.find("meta", {"itemprop": "interactionCount"})  # type: ignore
@@ -291,9 +285,7 @@ def parse_youtube_video(html_doc: str) -> dict:
             continue
         try:
             if script.string.startswith(needle_initial_data):
-                img_urls = re.findall(
-                    r"\"(https://yt\d[^\"]+)\"", script.string
-                )
+                img_urls = re.findall(r"\"(https://yt\d[^\"]+)\"", script.string)
                 for img_url in img_urls:
                     if (
                         "s176" in img_url
@@ -333,23 +325,11 @@ def test_fetch_duration():
 
 if __name__ == "__main__":
     # test_fetch_duration()
-    _test_fetch_youtube_video_info(
-        "https://www.youtube.com/watch?v=5nBqIK0mrFI"
-    )
-    _test_fetch_youtube_video_info(
-        "https://www.youtube.com/watch?v=r5VjrVqgEU8"
-    )
-    _test_fetch_youtube_video_info(
-        "https://www.youtube.com/watch?v=xfJsiDkbjg0"
-    )
+    _test_fetch_youtube_video_info("https://www.youtube.com/watch?v=5nBqIK0mrFI")
+    _test_fetch_youtube_video_info("https://www.youtube.com/watch?v=r5VjrVqgEU8")
+    _test_fetch_youtube_video_info("https://www.youtube.com/watch?v=xfJsiDkbjg0")
     # Project veritas should not return anything
-    _test_fetch_youtube_video_info(
-        "https://www.youtube.com/watch?v=F7y19uNaYfE"
-    )
+    _test_fetch_youtube_video_info("https://www.youtube.com/watch?v=F7y19uNaYfE")
     # Upcoming film
-    _test_fetch_youtube_video_info(
-        "https://www.youtube.com/watch?v=yv7NFn95R0s"
-    )
-    _test_fetch_youtube_video_info(
-        "https://www.youtube.com/watch?v=egRMAnwUQDQ"
-    )
+    _test_fetch_youtube_video_info("https://www.youtube.com/watch?v=yv7NFn95R0s")
+    _test_fetch_youtube_video_info("https://www.youtube.com/watch?v=egRMAnwUQDQ")

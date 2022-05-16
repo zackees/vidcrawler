@@ -16,9 +16,7 @@ except BaseException:  # pylint: disable=broad-except
     USE_CURL = False
 
 
-def _fetch_html_using_request_lib(
-    url: str, timeout: Optional[int] = None
-) -> str:
+def _fetch_html_using_request_lib(url: str, timeout: Optional[int] = None) -> str:
     timeout = timeout or 10
     # Workaround for long request time on windows
     # see https://github.com/psf/requests/issues/4023
