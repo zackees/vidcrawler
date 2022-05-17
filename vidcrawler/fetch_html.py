@@ -37,15 +37,9 @@ def fetch_html_using_request_lib(
 def fetch_html_using_curl(url: str, timeout: Optional[int] = None) -> str:
     """Uses the curl library to do a fetch"""
     timeout = int(timeout or 10)
-    try:
-        out: bytes = subprocess.check_output(
-            f"curl --max-time {timeout} -s -X GET {url}",
-            shell=True,
-        )
-    except subprocess.CalledProcessError as err:
-        if int(err.returncode) == 3221225786:
-            print(f"{__file__}: keyboard exit")
-            sys.exit(1)
+    out: bytes = subprocess.check_output(
+        f"curl --max-time {timeout} -s -X GET {url}", shell=True
+    )
     return out.decode("utf-8")
 
 
