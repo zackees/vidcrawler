@@ -8,6 +8,7 @@ Testing cmd
 import os
 import subprocess
 import unittest
+from pprint import pprint
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 FETCH_LIST = os.path.join(HERE, "fetch_list.json")
@@ -15,6 +16,9 @@ OUT_LIST = os.path.join(HERE, "out_list.json")
 
 
 class IoTester(unittest.TestCase):
+    def test_env(self):  # pylint: disable=no-self-use
+        pprint(dict(os.environ))
+
     def test_cmd(self):  # pylint: disable=no-self-use
         subprocess.check_call(
             "vidcrawler --help",
