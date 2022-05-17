@@ -31,12 +31,15 @@ is echo'd back in the generated json feeds, but doesn't not affect the fetching 
 
 ## Testing
 
+Install vidcrawler and then the command `vidcralwer_test` will become available.
+
 ```
+$ pip install vidcrawler
 $ vidcrawler_test
 ```
 
 
-#### Example input fetch list
+#### Example input `fetch_list.json`
 
 ```
 [
