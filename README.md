@@ -73,5 +73,6 @@ $ vidcrawler_test
 
 # Releases
 
+  * 1.0.2: Updates testing
   * 1.0.1: improves command line
   * 1.0.0: Initial release
