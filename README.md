@@ -1,6 +1,6 @@
 # vidcrawler
 
-Crawls major videos sites like YouTube/Rumble/Bitchute/Brighteon for video content and reports what it finds.
+Crawls major videos sites like YouTube/Rumble/Bitchute/Brighteon for video content and outputs a json feed of all the videos that were found.
 
 ## Platform Unit Tests
 
