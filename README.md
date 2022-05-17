@@ -71,6 +71,30 @@ $ vidcrawler_test
 ]
 ```
 
+# Example Output:
+
+```
+[
+  {
+    "channel_name": "ThePeteSantilliShow",
+    "title": "The damage this caused is now being totaled up",
+    "date_published": "2022-05-17T05:00:11+00:00",
+    "date_lastupdated": "2022-05-17T05:17:18.540084",
+    "channel_url": "https://www.youtube.com/channel/UCXIJgqnII2ZOINSWNOGFThA",
+    "source": "youtube.com",
+    "url": "https://www.youtube.com/watch?v=bwqBudCzDrQ",
+    "duration": 254,
+    "description": "",
+    "img_src": "https://i3.ytimg.com/vi/bwqBudCzDrQ/hqdefault.jpg",
+    "iframe_src": "https://youtube.com/embed/bwqBudCzDrQ",
+    "views": 1429
+  },
+  {
+      ...
+  }
+]
+```
+
 # Releases
 
   * 1.0.3: Bump
