@@ -15,7 +15,9 @@ from vidcrawler.bitchute import (
 )
 from vidcrawler.fetch_html import fetch_html
 
-IS_GITHUB_RUNNER = "/home/runner" in os.environ.get("TOX_ENV_DIR", "")
+IS_GITHUB_RUNNER = "/home/runner" in os.environ.get(
+    "TOX_ENV_DIR", ""
+) or "D:\\a\\vidcrawler" in os.environ("TOX_PACKAGE", "")
 
 
 class BitchuteScraperTester(unittest.TestCase):
