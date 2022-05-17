@@ -17,8 +17,8 @@ from vidcrawler.fetch_html import fetch_html
 
 IS_GITHUB_RUNNER = (
     "/home/runner" in os.environ.get("TOX_ENV_DIR", "")
-    or "D:\\a\\vidcrawler" in os.environ("TOX_PACKAGE", "")
-    or "/Users/runner/" in os.environ("TOX_WORK_DIR", "")
+    or "D:\\a\\vidcrawler" in os.environ.get("TOX_PACKAGE", "")
+    or "/Users/runner/" in os.environ.get("TOX_WORK_DIR", "")
 )
 
 
