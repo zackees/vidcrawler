@@ -11,10 +11,15 @@ from typing import Union
 import pytz
 from dateutil.parser import parse
 
+CURRENT_TIME_ZONE_STR = "America/Los_Angeles"
 
-def now_local() -> datetime:
-    """TODO fix"""
-    return datetime.now()
+
+def now_local(tz_str: str | None = None) -> datetime:
+    """Returns timezone aware now, which allows subtractions"""
+    tz_str = tz_str or CURRENT_TIME_ZONE_STR
+    tz = pytz.timezone(tz_str)
+    ts = datetime.now().astimezone(tz)
+    return ts
 
 
 def _my_date_parse(date_string: str) -> datetime:
@@ -55,7 +60,9 @@ def iso8601_duration_as_seconds(d: str) -> int:
     seconds = 0
     # split by the 'T'
     for i, item in enumerate(d.split("T")):
-        for number, unit in findall(r"(?P<number>\d+)(?P<period>S|M|H|D|W|Y)", item):
+        for number, unit in findall(
+            r"(?P<number>\d+)(?P<period>S|M|H|D|W|Y)", item
+        ):
             # print '%s -> %s %s' % (d, number, unit )
             number = int(number)
             this = 0
