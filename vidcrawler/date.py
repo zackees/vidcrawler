@@ -6,7 +6,7 @@
 
 from datetime import datetime
 from re import findall
-from typing import Union
+from typing import Optional, Union
 
 import pytz
 from dateutil.parser import parse
@@ -14,7 +14,7 @@ from dateutil.parser import parse
 CURRENT_TIME_ZONE_STR = "America/Los_Angeles"
 
 
-def now_local(tz_str: str | None = None) -> datetime:
+def now_local(tz_str: Optional[str] = None) -> datetime:
     """Returns timezone aware now, which allows subtractions"""
     tz_str = tz_str or CURRENT_TIME_ZONE_STR
     tz = pytz.timezone(tz_str)
