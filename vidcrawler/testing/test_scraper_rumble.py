@@ -1,6 +1,7 @@
 # pylint: disable=missing-module-docstring,missing-class-docstring,missing-function-docstring
 import unittest
 from datetime import datetime
+from typing import Optional
 
 from vidcrawler.date import now_local, parse_datetime
 from vidcrawler.rumble import fetch_rumble, fetch_rumble_channel_today
@@ -21,7 +22,7 @@ class RumbleScraperTester(unittest.TestCase):
         vid_list = fetch_rumble_channel_today(
             channel="BannonsWarRoom", channel_name="BannonsWarRoom"
         )
-        most_recent_date: datetime | None = None
+        most_recent_date: Optional[datetime] = None
         vid: VideoInfo
         for vid in vid_list:
             if most_recent_date is None:
