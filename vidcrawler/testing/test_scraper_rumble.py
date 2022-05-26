@@ -17,6 +17,7 @@ class RumbleScraperTester(unittest.TestCase):
         self.assertTrue(vid_list)
 
     def test_fetch_bannon(self) -> None:
+        max_days = 4
         vid_list = fetch_rumble_channel_today(
             channel="BannonsWarRoom", channel_name="BannonsWarRoom"
         )
@@ -38,7 +39,7 @@ class RumbleScraperTester(unittest.TestCase):
 
         self.assertLess(
             bannons_last_show_in_days,
-            4,
+            max_days,
             f"Bannon's last show was {bannons_last_show_in_days} days ago.",
         )
 
