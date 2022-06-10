@@ -1,4 +1,4 @@
-# pylint: disable=missing-module-docstring,missing-class-docstring,missing-function-docstring,line-too-long,invalid-name,consider-using-with,no-self-use,R0801
+# pylint: disable=all
 
 import unittest
 from typing import List
