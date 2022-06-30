@@ -98,6 +98,7 @@ $ vidcrawler_test
 
 # Releases
 
+  * 1.0.6: Fixes Odysee scraper by including image/webp thumbnail format.
   * 1.0.4: Fixes local_now() to be local timezone aware.
   * 1.0.3: Bump
   * 1.0.2: Updates testing
