@@ -21,7 +21,7 @@ def _parse_rss_entry(entry: feedparser.util.FeedParserDict) -> VideoInfo:
     published = entry.published
     thumbnail_img = ""
     for lnk in links:
-        if lnk.type in ["image/jpg", "image/jpeg", "image/png", "image/webp"]:
+        if lnk.type.lower().startswith("image/"):
             thumbnail_img = lnk.href
             break
     description = getattr(entry, "description", "")
