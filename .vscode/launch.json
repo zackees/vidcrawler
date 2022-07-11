@@ -11,7 +11,8 @@
             "subProcess": true,
             "program": "${file}",
             "console": "integratedTerminal",
-            "justMyCode": false
+            "justMyCode": false,
+            "python": "${command:python.interpreterPath}"
         },
         {
             "name": "Python: Remote Attach",

@@ -23,6 +23,12 @@ class OdyseeScraperTester(unittest.TestCase):
         )
         self.assertGreater(len(vid_list), 0)
 
+    def test_union_of_the_unwanted(self):
+        vid_list: List[VideoInfo] = fetch_odysee_today(
+            channel_name="UOTU", channel="uotuw:e"
+        )
+        self.assertGreater(len(vid_list), 0)
+
     def test_odysee_bug(self):
         # Test the fix for odysee bug:
         #   https://github.com/zackees/blast.video/issues/1
