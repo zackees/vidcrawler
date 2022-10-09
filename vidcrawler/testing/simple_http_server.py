@@ -16,6 +16,8 @@ import requests
 
 StringFunctor = Callable[[], str]
 
+_TIMEOUT = 10
+
 
 def make_handler_class(response_text_fcn: StringFunctor) -> Any:
     class Handler(http.server.SimpleHTTPRequestHandler):
@@ -84,7 +86,7 @@ def unit_test() -> None:
     with simple_response_server_thread(
         port=53925, response_text_fcn=lambda: "this should match!!!!"
     ):
-        resp = requests.get("http://localhost:53925")
+        resp = requests.get("http://localhost:53925", timeout=_TIMEOUT)
         resp.raise_for_status()
         assert resp.text == "this should match!!!!"
 

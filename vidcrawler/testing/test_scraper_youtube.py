@@ -35,7 +35,7 @@ class YouTubeScraperTester(unittest.TestCase):
         d = parse_youtube_video(content)
         self.assertEqual("False", d["is_live"])
         self.assertEqual(
-            "https://yt3.ggpht.com/ytc/AKedOLTYHbdYZYe2pG819bvJjRE9GJ518ROSVQ1T-ateXA=s176-c-k-c0x00ffffff-no-rj",
+            "https://yt3.ggpht.com/ytc/AMLnZu8YcoqIA7-FfOC0tEwMjTDflDpiMjnJT6GvCXjunw=s176-c-k-c0x00ffffff-no-rj",
             d["profile_thumbnail"],
         )
 

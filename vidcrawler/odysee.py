@@ -12,6 +12,8 @@ import requests  # type: ignore
 from .date import iso_fmt, now_local
 from .video_info import VideoInfo
 
+_TIMEOUT = 10
+
 
 def _parse_rss_entry(entry: feedparser.util.FeedParserDict) -> VideoInfo:
     """Parses an rss entry and outputs a VideoInfo object."""
@@ -47,7 +49,7 @@ def fetch_odysee_today(channel_name: str, channel: str) -> List[VideoInfo]:
     """Fetches the latest videos from odysee.com."""
     url: str = f"https://lbryfeed.melroy.org/channel/odysee/{channel}"
     channel_url: str = f"https://odysee.com/@{channel}"
-    resp = requests.get(url)
+    resp = requests.get(url, timeout=_TIMEOUT)
     now_str: str = iso_fmt(now_local())
     resp.raise_for_status()
     feed = feedparser.parse(resp.text)

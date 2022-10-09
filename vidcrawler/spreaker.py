@@ -21,6 +21,11 @@ def rss_element_to_video_info(
     channel_name: str, rss_element: dict
 ) -> VideoInfo:
     # content = rss_element.get('content')
+    # print(rss_element.keys())
+    #print("############################################")
+    #for key, val in rss_element.items():
+    #    print(key, val)
+    #sys.exit(0)
     thumbnail_img = rss_element["googleplay_image"]["href"]
     link = rss_element["link"]
     published = rss_element["published"]
@@ -61,7 +66,7 @@ def fetch_spreaker_today(channel_name: str, channel: str) -> List[VideoInfo]:
             output.append(vid)
         except BaseException as err:  # pylint: disable=broad-except
             sys.stderr.write(
-                f"{__file__}: Error while parsing {channel_name} entry:\n {str(entry)}:\n because of {err}"
+                f"{__file__}: Error while parsing {channel_name} entry:\n {str(entry['title'])}:\n because of {err}"
             )
     return output
 
