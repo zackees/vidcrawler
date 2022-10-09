@@ -9,6 +9,7 @@ import sys
 import traceback
 from typing import Dict, List, Tuple
 
+import isodate  # type: ignore
 import requests
 from bs4 import BeautifulSoup  # type: ignore
 
@@ -55,7 +56,12 @@ def fetch_rumble_channel_today(
     soup = BeautifulSoup(html_doc, "html.parser")
     for article in soup.find_all("article", class_="video-item"):
         try:
-            duration = article.find(class_="video-item--duration")["data-value"]
+            article_duration_dom = article.find(class_="video-item--duration")
+            duration = (
+                ""
+                if not article_duration_dom
+                else article_duration_dom["data-value"]
+            )
             vid_src_suffix = article.find(class_="video-item--a")["href"]
             vid_src = "https://rumble.com%s" % vid_src_suffix
             sys.stdout.write("  visiting video %s (%s)\n" % (channel, vid_src))
@@ -65,6 +71,10 @@ def fetch_rumble_channel_today(
             iframe_src = video_obj["embedUrl"]
             desc_text = video_obj["description"]
             publish_date = video_obj["uploadDate"]
+
+            if not duration:
+                duration_str = video_obj["duration"]
+                duration = isodate.parse_duration(duration_str).total_seconds()
             try:
                 views = video_obj["interactionStatistic"]["userInteractionCount"]  # type: ignore
             except KeyError:

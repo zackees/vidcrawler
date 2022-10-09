@@ -3,6 +3,7 @@ pytz
 beautifulsoup4
 keyvalue_sqlite
 python-dateutil
+isodate
 types-python-dateutil
 types-pytz
 types-requests
