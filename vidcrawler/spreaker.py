@@ -20,13 +20,7 @@ from .video_info import VideoInfo
 def rss_element_to_video_info(
     channel_name: str, rss_element: dict
 ) -> VideoInfo:
-    # content = rss_element.get('content')
-    # print(rss_element.keys())
-    #print("############################################")
-    #for key, val in rss_element.items():
-    #    print(key, val)
-    #sys.exit(0)
-    thumbnail_img = rss_element["googleplay_image"]["href"]
+    thumbnail_img = rss_element["image"]["href"]
     link = rss_element["link"]
     published = rss_element["published"]
     title = rss_element["title"]
