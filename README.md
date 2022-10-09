@@ -97,7 +97,7 @@ $ vidcrawler_test
 ```
 
 # Releases
-
+  * 1.0.9: Fixes crawler for rumble and minor fixes + linting fixes.
   * 1.0.8: Readme correction.
   * 1.0.7: Fixes Odysee scraper by including image/webp thumbnail format.
   * 1.0.4: Fixes local_now() to be local timezone aware.
