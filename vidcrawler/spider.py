@@ -180,9 +180,7 @@ def crawl_video_sites(channels: List[Tuple[str, str, str]], use_threads: bool = 
         _singlethreaded_fetch(channels, vid_infos, bad_channels)
     # apply_fetch_images(vid_infos)
     out_data: List[Dict] = VideoInfo.to_plain_list(vid_infos)  # type: ignore
-    json_str = json.dumps(
-        out_data, indent=2, sort_keys=True, ensure_ascii=False
-    )
+    json_str = json.dumps(out_data, indent=2, sort_keys=True, ensure_ascii=False)
     bad_channels.sort()
     if bad_channels:
         print("#############")

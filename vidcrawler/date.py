@@ -60,9 +60,7 @@ def iso8601_duration_as_seconds(d: str) -> int:
     seconds = 0
     # split by the 'T'
     for i, item in enumerate(d.split("T")):
-        for number, unit in findall(
-            r"(?P<number>\d+)(?P<period>S|M|H|D|W|Y)", item
-        ):
+        for number, unit in findall(r"(?P<number>\d+)(?P<period>S|M|H|D|W|Y)", item):
             # print '%s -> %s %s' % (d, number, unit )
             number = int(number)
             this = 0

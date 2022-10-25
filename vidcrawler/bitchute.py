@@ -88,9 +88,7 @@ def parse_rss_feed(content: str) -> List[dict]:
 def fetch_bitchute_today(channel_name: str, channel_id: str) -> List[VideoInfo]:
     output: List[VideoInfo] = []
     channel_url = "https://www.bitchute.com/channel/%s/" % channel_id
-    sys.stdout.write(
-        "Bitchute visiting %s (%s)\n" % (channel_name, channel_url)
-    )
+    sys.stdout.write("Bitchute visiting %s (%s)\n" % (channel_name, channel_url))
     html_doc = fetch_html(channel_url)
     rss_url = parse_rss_url(html_doc)
     date_published_map = {}

@@ -7,9 +7,7 @@ from vidcrawler.brighteon import fetch_brighteon_today
 
 class BrighteonScraperTester(unittest.TestCase):
     def test_fetch_brighteon_today(self):
-        vid_list = fetch_brighteon_today(
-            channel_name="brendon", channel="brendon"
-        )
+        vid_list = fetch_brighteon_today(channel_name="brendon", channel="brendon")
         self.assertIsNotNone(vid_list)
 
 

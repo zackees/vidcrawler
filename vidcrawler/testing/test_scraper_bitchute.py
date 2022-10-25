@@ -19,6 +19,7 @@ IS_GITHUB_RUNNER = (
     or "/Users/runner/" in os.environ.get("PATH", "")
 )
 
+
 class BitchuteScraperTester(unittest.TestCase):
     """Tester for bitchute."""
 
@@ -26,9 +27,7 @@ class BitchuteScraperTester(unittest.TestCase):
         IS_GITHUB_RUNNER, "Skip amazing polly on github actions, it fails."
     )
     def test_fetch_rss_video(self):
-        rss_url = fetch_rss_url(
-            channel_name="Infowars", channel_id="9c7qJvwx7YQT"
-        )
+        rss_url = fetch_rss_url(channel_name="Infowars", channel_id="9c7qJvwx7YQT")
         self.assertIsNotNone(rss_url)
         self.assertEqual(
             "https://www.bitchute.com/feeds/rss/channel/banned-dot-video/",
