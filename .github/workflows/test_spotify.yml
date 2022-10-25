@@ -1,4 +1,4 @@
-name: Scaper_Spotify
+name: Scraper_Spotify
 
 on: [push]
 
