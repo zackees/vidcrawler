@@ -8,6 +8,13 @@ Crawls major videos sites like YouTube/Rumble/Bitchute/Brighteon for video conte
 [![Actions Status](https://github.com/zackees/vidcrawler/workflows/Win_Tests/badge.svg)](https://github.com/zackees/vidcrawler/actions/workflows/test_win.yml)
 [![Actions Status](https://github.com/zackees/vidcrawler/workflows/Ubuntu_Tests/badge.svg)](https://github.com/zackees/vidcrawler/actions/workflows/test_ubuntu.yml)
 
+## Scraper Tests
+
+[![Actions Status](https://github.com/zackees/vidcrawler/workflows/Scaper_Bitchute/badge.svg)](https://github.com/zackees/vidcrawler/actions/workflows/test_bitchute.yml)
+[![Actions Status](https://github.com/zackees/vidcrawler/workflows/Scaper_Youtube/badge.svg)](https://github.com/zackees/vidcrawler/actions/workflows/test_youtube.yml)
+[![Actions Status](https://github.com/zackees/vidcrawler/workflows/Scaper_Rumble/badge.svg)](https://github.com/zackees/vidcrawler/actions/workflows/test_rumble.yml)
+[![Actions Status](https://github.com/zackees/vidcrawler/workflows/Scraper_Gabtv/badge.svg)](https://github.com/zackees/vidcrawler/actions/workflows/test_gabtv.yml)
+
 ## API
 
 #### Command line
