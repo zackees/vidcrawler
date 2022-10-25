@@ -8,19 +8,16 @@ Tests bitchute scraper.
 import os
 import unittest
 
-from vidcrawler.bitchute import (
-    fetch_bitchute_today,
-    fetch_rss_url,
-    parse_rss_feed,
-)
+from vidcrawler.bitchute import fetch_bitchute_today, fetch_rss_url, parse_rss_feed
 from vidcrawler.fetch_html import fetch_html
 
 IS_GITHUB_RUNNER = (
     "/home/runner" in os.environ.get("TOX_ENV_DIR", "")
     or "D:\\a\\vidcrawler" in os.environ.get("TOX_PACKAGE", "")
     or "/Users/runner/" in os.environ.get("TOX_WORK_DIR", "")
+    or "/Users/runner/" in os.environ.get("VIRTUAL_ENV", "")
+    or "/Users/runner/" in os.environ.get("PATH", "")
 )
-
 
 class BitchuteScraperTester(unittest.TestCase):
     """Tester for bitchute."""
