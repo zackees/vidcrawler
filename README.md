@@ -104,7 +104,8 @@ Install vidcrawler and then the command `vidcralwer_test` will become available.
     "views": 1429
   },
   {
-      ...
+     "channel_name": "ThePeteSantilliShow",
+     "title": "..."
   }
 ]
 ```
