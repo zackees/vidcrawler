@@ -26,12 +26,15 @@ Note that bitchute doesn't like the github runner's IP and will fail with a 403 
 
 #### Python
 
-```
+```python
 import json
 from vidcrawler import crawl_video_sites
-
 crawl_list = [
-    ["channel name", "source", "channel_id"]
+    [
+        "Computing Forever",  # Can be whatever you want.
+        "bitchute",  # Must be "youtube", "rumble", "bitchute"
+        "hybm74uihjkf"  # The channel id on the service.
+    ]
 ]
 output = crawl_video_sites(crawl_list)
 print(json.dumps(output))
@@ -44,15 +47,15 @@ is echo'd back in the generated json feeds, but doesn't not affect the fetching 
 
 Install vidcrawler and then the command `vidcralwer_test` will become available.
 
-```
-$ pip install vidcrawler
-$ vidcrawler_test
+```bash
+> pip install vidcrawler
+> vidcrawler_test
 ```
 
 
 #### Example input `fetch_list.json`
 
-```
+```json
 [
     [
         "Health Ranger Report",
@@ -84,7 +87,7 @@ $ vidcrawler_test
 
 #### Example Output:
 
-```
+```json
 [
   {
     "channel_name": "ThePeteSantilliShow",
