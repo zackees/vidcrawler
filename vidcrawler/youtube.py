@@ -21,7 +21,7 @@ from keyvalue_sqlite import KeyValueSqlite as KeyValueDB  # type: ignore
 
 from .date import iso8601_duration_as_seconds, iso_fmt, now_local
 from .error import log_error
-from .fetch_html import fetch_html_using_request_lib, fetch_html
+from .fetch_html import fetch_html, fetch_html_using_request_lib
 from .video_info import VideoInfo
 
 _ENABLE_PROFILE_FETCH = False
@@ -90,7 +90,8 @@ def fetch_youtube_duration_str(url: str, cache_path: Optional[str]) -> str:
         duration_str = dom.attrs["content"]
         duration_seconds = iso8601_duration_as_seconds(duration_str)
         _set_cached_duration(url, duration_seconds, cache_path)
-        return strfdelta(duration_seconds)
+        out = strfdelta(duration_seconds)
+        return out
     except requests.exceptions.HTTPError as e:
         sys.stderr.write(
             f'{__file__} Error while processing {url} for duration because "{str(e)}"\n'
