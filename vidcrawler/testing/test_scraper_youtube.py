@@ -92,9 +92,9 @@ class YouTubeScraperTester(unittest.TestCase):
         channel_id = "UCfaIu2jO-fppCQV_lchCRIQ"
         vids = fetch_youtube_today("Charlie Kirk", channel_id, None, 3)
         print(vids)
-        #response = requests.get(url)
+        # response = requests.get(url)
         # Raise error if 404 or other error condition.
-        #response.raise_for_status()
+        # response.raise_for_status()
 
 
 if __name__ == "__main__":
