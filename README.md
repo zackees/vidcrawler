@@ -32,7 +32,7 @@ from vidcrawler import crawl_video_sites
 crawl_list = [
     [
         "Computing Forever",  # Can be whatever you want.
-        "bitchute",  # Must be "youtube", "rumble", "bitchute"
+        "bitchute",  # Must be "youtube", "rumble", "bitchute" (and others).
         "hybm74uihjkf"  # The channel id on the service.
     ]
 ]
