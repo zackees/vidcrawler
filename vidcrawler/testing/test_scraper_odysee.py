@@ -1,11 +1,14 @@
 # pylint: disable=missing-module-docstring,missing-class-docstring,missing-function-docstring
 
+import os
 import re
 import unittest
 from typing import List
 
 from vidcrawler.odysee import fetch_odysee_today
 from vidcrawler.video_info import VideoInfo
+
+RUN_ALL_TESTS = os.environ.get("RUN_ALL_TESTS", None) is not None
 
 
 def is_valid_url(url: str) -> bool:
@@ -15,7 +18,7 @@ def is_valid_url(url: str) -> bool:
 
 
 class OdyseeScraperTester(unittest.TestCase):
-    @unittest.skip("Odysee is not working")
+    @unittest.skipUnless(RUN_ALL_TESTS, "Odysee is not working")
     def test_fetch_odysee_today(self):
         # RSS FEED:
         #   https://lbryfeed.melroy.org/channel/odysee/BretWeinstein
@@ -24,14 +27,14 @@ class OdyseeScraperTester(unittest.TestCase):
         )
         self.assertGreater(len(vid_list), 0)
 
-    @unittest.skip("Odysee is not working")
+    @unittest.skipUnless(RUN_ALL_TESTS, "Odysee is not working")
     def test_union_of_the_unwanted(self):
         vid_list: List[VideoInfo] = fetch_odysee_today(
             channel_name="UOTU", channel="uotuw:e"
         )
         self.assertGreater(len(vid_list), 0)
 
-    @unittest.skip("Odysee is not working")
+    @unittest.skipUnless(RUN_ALL_TESTS, "Odysee is not working")
     def test_odysee_bug(self):
         # Test the fix for odysee bug:
         #   https://github.com/zackees/blast.video/issues/1
