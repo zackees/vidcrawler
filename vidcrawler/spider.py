@@ -60,7 +60,7 @@ def _fetch_all(
         random.shuffle(fetch_list)
 
     def do_fetch(fetch_list: List, callback: Any) -> None:
-        for (channel_name, channel_id) in fetch_list:
+        for channel_name, channel_id in fetch_list:
             try:
                 videos = callback(channel_name, channel_id)  # type: ignore
                 for vid in videos:
@@ -114,7 +114,7 @@ def _threaded_fetch_channels(
     # Partition the list by source type (bitchute, youtube, ...)
     # for each source fetch all videos.
     partitioned: Dict[str, Any] = {}
-    for (channel_name, source, channel_id) in channels:
+    for channel_name, source, channel_id in channels:
         partitioned.setdefault(source, [])
         partitioned[source].append((channel_name, channel_id))
     queue_out: queue.Queue = queue.Queue()
@@ -158,7 +158,7 @@ def _singlethreaded_fetch(
     out_bad_channels: List[Tuple[str, str]],
 ) -> None:
     partitioned: Dict[str, Any] = {}
-    for (channel_name, source, channel_id) in channels:
+    for channel_name, source, channel_id in channels:
         partitioned.setdefault(source, [])
         partitioned[source].append((channel_name, channel_id))
     queue_out: queue.Queue = queue.Queue()

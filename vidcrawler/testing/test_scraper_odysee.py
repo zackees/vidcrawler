@@ -19,7 +19,7 @@ def is_valid_url(url: str) -> bool:
 
 class OdyseeScraperTester(unittest.TestCase):
     @unittest.skipUnless(RUN_ALL_TESTS, "Odysee is not working")
-    def test_fetch_odysee_today(self):
+    def test_fetch_odysee_today(self) -> None:
         # RSS FEED:
         #   https://lbryfeed.melroy.org/channel/odysee/BretWeinstein
         vid_list: List[VideoInfo] = fetch_odysee_today(
@@ -28,14 +28,14 @@ class OdyseeScraperTester(unittest.TestCase):
         self.assertGreater(len(vid_list), 0)
 
     @unittest.skipUnless(RUN_ALL_TESTS, "Odysee is not working")
-    def test_union_of_the_unwanted(self):
+    def test_union_of_the_unwanted(self) -> None:
         vid_list: List[VideoInfo] = fetch_odysee_today(
             channel_name="UOTU", channel="uotuw:e"
         )
         self.assertGreater(len(vid_list), 0)
 
     @unittest.skipUnless(RUN_ALL_TESTS, "Odysee is not working")
-    def test_odysee_bug(self):
+    def test_odysee_bug(self) -> None:
         # Test the fix for odysee bug:
         #   https://github.com/zackees/blast.video/issues/1
         vid_list: List[VideoInfo] = fetch_odysee_today(

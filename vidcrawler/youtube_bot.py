@@ -1,12 +1,15 @@
+# flake8: noqa=W293
+# pylint: disable=line-too-long,missing-class-docstring,missing-function-docstring,consider-using-f-string,too-many-locals,invalid-name
+
 """
 Test script for opening a youtube channel and getting the latest videos.
 """
 
 import os
 import re
+from dataclasses import dataclass
 
-from bs4 import BeautifulSoup  # type: ignore
-from open_webdriver import open_webdriver
+from open_webdriver import open_webdriver  # type: ignore
 
 # from be
 
@@ -93,8 +96,6 @@ URL = "https://www.youtube.com/@silverguru/videos"
 </ytd-rich-item-renderer>
 """
 
-from dataclasses import dataclass
-
 
 @dataclass
 class YtVid:
@@ -137,9 +138,7 @@ def fetch_all_sources(yt_channel_url: str) -> list[str]:
         content = driver.page_source
         sources.append(content)
         for _ in range(10):
-            driver.execute_script(
-                "window.scrollTo(0, document.body.scrollHeight);"
-            )
+            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             # delay
             driver.implicitly_wait(2)
             content = driver.page_source
@@ -159,6 +158,7 @@ def main() -> int:
     print(f"Found {len(vidlist)} videos.")
     for vid in vidlist:
         print(f"  {vid.url}")
+    return 0
 
 
 if __name__ == "__main__":

@@ -69,7 +69,7 @@ def parse_rss_feed(content: str) -> List[dict]:
         embed_link = links[0]["href"]
         img_link = links[1]["href"]
         id = re.findall(r".*/embed/([^\/]+)/", entry["link"])[0]
-        obj = dict(
+        obj = dict(  # pylint: disable=R1735
             title=title,
             date_published=date_published,
             alt_channel_url=channel_url,

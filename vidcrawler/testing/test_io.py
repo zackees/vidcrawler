@@ -2,7 +2,6 @@
 Testing for io
 """
 
-
 # pylint: disable=line-too-long,missing-function-docstring,missing-class-docstring,super-with-arguments,invalid-name,R0801
 
 import gzip

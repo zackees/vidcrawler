@@ -5,6 +5,7 @@ import unittest
 from typing import List
 
 import requests
+
 from vidcrawler.fetch_html import fetch_html
 from vidcrawler.video_info import VideoInfo
 from vidcrawler.youtube import fetch_youtube_today, parse_youtube_video
@@ -30,7 +31,7 @@ class YouTubeScraperTester(unittest.TestCase):
         return os.path.abspath(tmp_file.name)
 
     @unittest.skip("test_fetch_video_info not working")
-    def test_fetch_video_info(self):
+    def test_fetch_video_info(self) -> None:
         url: str = "https://www.youtube.com/watch?v=5nBqIK0mrFI"
         content: str = fetch_html(url)
         d = parse_youtube_video(content)
@@ -40,7 +41,7 @@ class YouTubeScraperTester(unittest.TestCase):
             d["profile_thumbnail"],
         )
 
-    def test_bad_content(self):
+    def test_bad_content(self) -> None:
         """Stephan Molynuex is banned. This should produce an error."""
         try:
             fetch_youtube_today(
@@ -52,7 +53,7 @@ class YouTubeScraperTester(unittest.TestCase):
             return  # expected result.
         self.fail("Expected bad channel to raise exception.")
 
-    def test_maryam_henein(self):
+    def test_maryam_henein(self) -> None:
         out: List[VideoInfo] = fetch_youtube_today(
             channel_name="Maryam Henein",
             channel_id="UCkw3pE7PwWfQCFFP2YgKVIQ",
@@ -61,7 +62,7 @@ class YouTubeScraperTester(unittest.TestCase):
         )
         self.assertEqual(len(out), 1)
 
-    def test_lex_freemond(self):
+    def test_lex_freemond(self) -> None:
         out: List[VideoInfo] = fetch_youtube_today(
             channel_name="Lex Fridman",
             channel_id="UCSHZKyawb77ixDdsGog4iWA",
@@ -70,7 +71,7 @@ class YouTubeScraperTester(unittest.TestCase):
         )
         self.assertEqual(len(out), 1)
 
-    def test_fetch_channel_via_html(self):
+    def test_fetch_channel_via_html(self) -> None:
         out = fetch_youtube_today(
             channel_name="Maryam Henein",
             channel_id="UCkw3pE7PwWfQCFFP2YgKVIQ",

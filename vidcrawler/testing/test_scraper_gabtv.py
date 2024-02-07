@@ -8,12 +8,12 @@ from vidcrawler.video_info import VideoInfo
 
 
 class GabTvTester(unittest.TestCase):
-    def test_fetch_gabtv_views(self):
+    def test_fetch_gabtv_views(self) -> None:
         """Tests that we can fetch views."""
         views = fetch_views(channel="LadyBee")
         self.assertGreater(len(views), 0)
 
-    def test_fetch_gabtv_today(self):
+    def test_fetch_gabtv_today(self) -> None:
         vid_list: List[VideoInfo] = fetch_gabtv_today(
             channel_name="Maryam Henein", channel_id="LadyBee"
         )

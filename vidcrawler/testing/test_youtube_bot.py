@@ -1,11 +1,9 @@
 # pylint: disable=all
+# flake8: noqa
 
-import os
 import unittest
 
 from vidcrawler.youtube_bot import fetch_all_sources
-
-
 
 TEST_HTML = """
 <ytd-rich-item-renderer class="style-scope ytd-rich-grid-row" items-per-row="3" is-slim-grid=""><!--css-build:shady--><!--css-build:shady--><div id="content" class="style-scope ytd-rich-item-renderer"><ytd-rich-grid-media class="style-scope ytd-rich-item-renderer" lockup="true" mini-mode=""><!--css-build:shady--><!--css-build:shady--><div id="dismissible" class="style-scope ytd-rich-grid-media"><div id="thumbnail" class="style-scope ytd-rich-grid-media"><ytd-thumbnail rich-grid-thumbnail="" use-hovered-property="" width="9999" class="style-scope ytd-rich-grid-media" size="large" loaded=""><!--css-build:shady--><!--css-build:shady--><a id="thumbnail" class="yt-simple-endpoint inline-block style-scope ytd-thumbnail" aria-hidden="true" tabindex="-1" rel="null" href="/watch?v=ikuJY1dhX4E">
