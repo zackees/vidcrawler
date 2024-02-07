@@ -2,11 +2,16 @@
 Test script for opening a youtube channel and getting the latest videos.
 """
 
+import os
 import re
 
+from bs4 import BeautifulSoup  # type: ignore
 from open_webdriver import open_webdriver
 
 # from be
+
+IS_GITHUB_RUNNER = os.environ.get("GITHUB_ACTIONS") == "true"
+HEADLESS = IS_GITHUB_RUNNER
 
 URL = "https://www.youtube.com/@silverguru/videos"
 
@@ -122,18 +127,15 @@ def parse_youtube_videos(content: str) -> list[YtVid]:
     return out
 
 
-def main():
-    """Open a web driver and navigate to Google."""
+def fetch_all_sources(yt_channel_url: str) -> list[str]:
     sources: list[str] = []
-    with open_webdriver(headless=False) as driver:
+    with open_webdriver(headless=HEADLESS) as driver:
         # All Chromium / web driver dependencies are now installed.
-        driver.get(URL)
+        driver.get(yt_channel_url)
         # driver.find_element_by_id("search").send_keys("seleniumhq" + Keys.RETURN)
         # assert "No results found." not in driver.page_source
-
         content = driver.page_source
         sources.append(content)
-
         for _ in range(10):
             driver.execute_script(
                 "window.scrollTo(0, document.body.scrollHeight);"
@@ -142,13 +144,19 @@ def main():
             driver.implicitly_wait(2)
             content = driver.page_source
             sources.append(content)
+    return sources
 
-        # vids = parse_youtube_videos(content)
-        # print("Page source:", driver.page_source)
-        # print("Videos:", vids)
-        # for vid in vids:
-        #    print(f"  {vid.url}")
+
+def fetch_all_vids(yt_channel_url: str) -> list[YtVid]:
+    """Open a web driver and navigate to Google. yt_channel_url should be of the form https://www.youtube.com/@silverguru/videos"""
+    sources: list[str] = fetch_all_sources(yt_channel_url)
     vidlist = YtVid.merge([parse_youtube_videos(source) for source in sources])
+    return vidlist
+
+
+def main() -> int:
+    vidlist = fetch_all_vids(URL)
+    print(f"Found {len(vidlist)} videos.")
     for vid in vidlist:
         print(f"  {vid.url}")
 

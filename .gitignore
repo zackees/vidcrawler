@@ -150,3 +150,4 @@ Thumbs.db
 # Local Netlify folder
 .netlify
 vidcrawler/.wdm/
+vidcrawler/testing/.wdm
