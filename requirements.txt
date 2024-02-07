@@ -8,3 +8,4 @@ requests
 types-python-dateutil
 types-pytz
 types-requests
+open-webdriver
