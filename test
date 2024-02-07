@@ -1,0 +1,6 @@
+#!/bin/bash
+#if activate.sh exists, invoke it
+if [ -f activate.sh ]; then
+    source activate.sh
+fi
+pytest vidcrawler/testing -n auto -vv
