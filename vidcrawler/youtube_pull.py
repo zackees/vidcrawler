@@ -15,11 +15,11 @@ def parse_args() -> argparse.Namespace:
     """Parse command line arguments."""
     parser = argparse.ArgumentParser("youtube-pull")
     parser.add_argument(
-        "channel-url",
+        "channel_url",
         type=str,
         help="URL of the channel, example: https://www.youtube.com/@silverguru/videos",
     )
-    parser.add_argument("output-dir", type=str)
+    parser.add_argument("output_dir", type=str)
     return parser.parse_args()
 
 
@@ -31,7 +31,17 @@ def main() -> None:
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     vids: list[YtVid] = fetch_all_vids(channel_url)
+    data = [vid.to_dict() for vid in vids]
+    out_str = json.dumps(data, indent=2)
     output_json = os.path.join(output_dir, "vids.json")
     with open(output_json, encoding="utf-8", mode="w") as filed:
-        filed.write(json.dumps(vids, indent=2))
+        filed.write(out_str)
     print(f"Output written to {output_json}")
+
+
+if __name__ == "__main__":
+    import sys
+
+    sys.argv.append("https://www.youtube.com/@silverguru/videos")
+    sys.argv.append("tmp")
+    main()

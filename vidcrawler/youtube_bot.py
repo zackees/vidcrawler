@@ -46,8 +46,11 @@ class YtVid:
         return self.url == other.url
 
     def __repr__(self) -> str:
-        data = {"url": self.url, "title": self.title}
+        data = self.to_dict()
         return json.dumps(data)
+
+    def to_dict(self) -> dict:
+        return {"url": self.url, "title": self.title}
 
 
 def parse_youtube_videos(div_strs: list[str]) -> list[YtVid]:
