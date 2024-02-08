@@ -15,11 +15,13 @@ from typing import Generator
 
 from bs4 import BeautifulSoup  # type: ignore
 from open_webdriver import open_webdriver  # type: ignore
+
+# fmt: off
 from selenium.common.exceptions import (
     StaleElementReferenceException as StaleElementException,  # type: ignore
 )
 
-# from be
+# fmt: on
 
 IS_GITHUB_RUNNER = os.environ.get("GITHUB_ACTIONS") == "true"
 HEADLESS = IS_GITHUB_RUNNER
@@ -77,7 +79,7 @@ def parse_youtube_videos(div_strs: list[str]) -> list[YtVid]:
 
 def fetch_all_sources(
     yt_channel_url: str, limit: int = -1
-) -> Generator[list[str], None, None]:
+) -> Generator[str, None, None]:
     max_index = limit if limit > 0 else 1000
     with open_webdriver(headless=HEADLESS) as driver:
 
@@ -118,8 +120,8 @@ def fetch_all_sources(
 
 def fetch_all_vids(yt_channel_url: str, limit: int = -1) -> list[YtVid]:
     """
-        Open a web driver and navigate to Google. yt_channel_url should be
-        of the form https://www.youtube.com/@silverguru/videos
+    Open a web driver and navigate to Google. yt_channel_url should be
+    of the form https://www.youtube.com/@silverguru/videos
     """
     pending_fetches = fetch_all_sources(
         yt_channel_url=yt_channel_url, limit=limit
