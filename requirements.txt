@@ -9,3 +9,4 @@ types-python-dateutil
 types-pytz
 types-requests
 open-webdriver>=1.4.5
+filelock
