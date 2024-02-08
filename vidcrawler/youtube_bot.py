@@ -104,26 +104,26 @@ def fetch_all_sources(yt_channel_url: str, limit: int = -1) -> list[str]:
     sources: list[str] = []
     with open_webdriver(headless=HEADLESS) as driver:
 
-        def get_content() -> str:
+        def get_contents() -> list[str]:
             content_div = driver.find_element_by_id("contents")
             content = content_div.get_attribute("outerHTML")
-            return content
+            return [content]
 
         # All Chromium / web driver dependencies are now installed.
         driver.get(yt_channel_url)
         time.sleep(JS_SCROLL_TO_BOTTOM_WAIT)
         # driver.find_element_by_id("search").send_keys("seleniumhq" + Keys.RETURN)
         # assert "No results found." not in driver.page_source
-        content = get_content()
+        contents = get_contents()
         # content = driver.page_source
-        sources.append(content)
+        sources.extend(contents)
         last_scroll_height = 0
         for index in range(max_index):
             driver.execute_script(JS_SCROLL_TO_BOTTOM)
             # driver.implicitly_wait(JS_SCROLL_TO_BOTTOM_WAIT)
             time.sleep(JS_SCROLL_TO_BOTTOM_WAIT)
-            content = get_content()
-            sources.append(content)
+            contents = get_contents()
+            sources.extend(contents)
             scroll_height = driver.execute_script(
                 "return document.documentElement.scrollHeight"
             )

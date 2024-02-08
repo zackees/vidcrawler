@@ -151,3 +151,4 @@ Thumbs.db
 .netlify
 vidcrawler/.wdm/
 vidcrawler/testing/.wdm
+.aider*
