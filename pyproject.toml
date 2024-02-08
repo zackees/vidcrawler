@@ -1,6 +1,17 @@
 [build-system]
 requires = ["setuptools", "wheel"]
 
+[project]
+name = "vidcrawler"
+description = "Video Crawler"
+readme = "README.md"
+requires-python = ">=3.9"
+dynamic = ["dependencies", "version"]
+license = { text = "MIT" }
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
+
 [tool.mypy]
 # disable type checking
 ignore_missing_imports = true
@@ -29,6 +40,8 @@ exclude = '''
 )
 '''
 
+
 [project.scripts]
 vidcrawler = "vidcrawler.cmd:main"
 vidcrawler_test = "vidcrawler.run_tests:main"
+youtube-pull = "vidcrawler.youtube_pull:main"

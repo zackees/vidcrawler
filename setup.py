@@ -10,9 +10,7 @@ from setuptools import Command, find_packages, setup
 
 # The directory containing this file
 HERE = os.path.dirname(__file__)
-
 NAME = "vidcrawler"
-DESCRIPTION = "Video Crawler"
 URL = "https://github.com/zackees/vidcrawler"
 EMAIL = "dont@email.me"
 AUTHOR = "Zach Vorhies"
@@ -102,16 +100,13 @@ class UploadCommand(Command):
 
 
 setup(
-    name=NAME,
     python_requires=REQUIRES_PYTHON,
     version=VERSION,
-    description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
     long_description_content_type="text/markdown",
     url=URL,
     author="Zach Vorhies",
     author_email="dont@email.me",
-    license="MIT",
     classifiers=[
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3.6",
