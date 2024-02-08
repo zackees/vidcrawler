@@ -14,7 +14,11 @@ from vidcrawler.youtube_bot import YtVid, fetch_all_vids
 def parse_args() -> argparse.Namespace:
     """Parse command line arguments."""
     parser = argparse.ArgumentParser("youtube-pull")
-    parser.add_argument("channel-url", type=str)
+    parser.add_argument(
+        "channel-url",
+        type=str,
+        help="URL of the channel, example: https://www.youtube.com/@silverguru/videos",
+    )
     parser.add_argument("output-dir", type=str)
     return parser.parse_args()
 
