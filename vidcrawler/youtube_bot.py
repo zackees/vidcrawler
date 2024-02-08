@@ -12,6 +12,7 @@ import traceback
 import warnings
 from dataclasses import dataclass
 from typing import Generator
+import concurrent.futures
 
 from bs4 import BeautifulSoup  # type: ignore
 from open_webdriver import open_webdriver  # type: ignore
@@ -115,9 +116,11 @@ def fetch_all_vids(yt_channel_url: str, limit: int = -1) -> list[YtVid]:
     """
     pending_fetches = fetch_all_sources(yt_channel_url=yt_channel_url, limit=limit)
     list_vids: list[list[YtVid]] = []
-    for sources in pending_fetches:
-        vids = parse_youtube_videos([sources])
-        list_vids.append(vids)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max(1, os.cpu_count())) as executor:
+        future_to_vid = {executor.submit(parse_youtube_videos, [sources]): sources for sources in pending_fetches}
+        for future in concurrent.futures.as_completed(future_to_vid):
+            vids = future.result()
+            list_vids.append(vids)
     unique_vids: set[YtVid] = set()
     out_vids: list[YtVid] = []
     for vids in list_vids:
