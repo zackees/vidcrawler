@@ -117,14 +117,13 @@ def fetch_all_sources(
 
 
 def fetch_all_vids(yt_channel_url: str, limit: int = -1) -> list[YtVid]:
-    """Open a web driver and navigate to Google. yt_channel_url should be of the form https://www.youtube.com/@silverguru/videos"""
-    # sources = list(
-    #    fetch_all_sources(yt_channel_url=yt_channel_url, limit=limit)
-    # )
+    """
+        Open a web driver and navigate to Google. yt_channel_url should be
+        of the form https://www.youtube.com/@silverguru/videos
+    """
     pending_fetches = fetch_all_sources(
         yt_channel_url=yt_channel_url, limit=limit
     )
-    # unique_vids: list[YtVid] = []
     list_vids: list[list[YtVid]] = []
     for sources in pending_fetches:
         vids = parse_youtube_videos([sources])
