@@ -53,6 +53,50 @@ class YtVid:
         return {"url": self.url, "title": self.title}
 
 
+import unicodedata
+
+
+def sanitize_filepath(path: str, replacement_char: str = "_") -> str:
+    """
+    Sanitize a file path to make it safe for use in file systems.
+
+    :param path: The file path to be sanitized.
+    :param replacement_char: The character to use for replacing invalid characters.
+    :return: A sanitized version of the file path.
+    """
+    # Normalize unicode characters
+    path = (
+        unicodedata.normalize("NFKD", path)
+        .encode("ascii", "ignore")
+        .decode("ascii")
+    )
+
+    # Replace invalid file path characters
+    invalid_chars = r'<>:"/\\|?*'
+    for char in invalid_chars:
+        path = path.replace(char, replacement_char)
+
+    # Replace leading/trailing periods and spaces
+    path = path.strip(". ")
+
+    # Avoid reserved names in Windows like CON, PRN, AUX, NUL, etc.
+    reserved_names = ["CON", "PRN", "AUX", "NUL"] + [
+        f"{name}{i}" for name in ["COM", "LPT"] for i in range(1, 10)
+    ]
+    basename = path.split("/")[-1]
+    if basename.upper() in reserved_names:
+        path = path.replace(basename, replacement_char + basename)
+
+    # Truncate long paths
+    max_length = 255
+    if len(path) > max_length:
+        extension = "." + path.split(".")[-1] if "." in path else ""
+        path = path[: max_length - len(extension)] + extension
+    path = path.replace("'", "_")
+
+    return path
+
+
 def parse_youtube_videos(div_strs: list[str]) -> list[YtVid]:
     """Div containing the youtube video, which has a title and an href."""
     out: list[YtVid] = []
@@ -66,6 +110,7 @@ def parse_youtube_videos(div_strs: list[str]) -> list[YtVid]:
             assert href is not None
             assert href.startswith("/")
             href = URL_BASE + href
+            title = sanitize_filepath(title.strip())
         except KeyboardInterrupt:
             return out
         except SystemExit:
