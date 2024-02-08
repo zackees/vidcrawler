@@ -93,9 +93,7 @@ def find_missing_downloads(library_json_path: str) -> list[dict]:
         data = json.load(filed)
     for vid in data:
         title = vid["title"]
-        file_path = os.path.join(
-            os.path.dirname(library_json_path), f"{title}.mp3"
-        )
+        file_path = os.path.join(os.path.dirname(library_json_path), f"{title}.mp3")
         if not os.path.exists(file_path):
             vid["file_path"] = file_path
             out.append(vid)
@@ -115,9 +113,7 @@ def main() -> None:
     file_lock = library_json + ".lock"
     with FileLock(file_lock):
         loaded_data = load_json(library_json)
-        vids: list[YtVid] = fetch_all_vids(
-            channel_url, limit=limit_scroll_pages
-        )
+        vids: list[YtVid] = fetch_all_vids(channel_url, limit=limit_scroll_pages)
         fetched_data = [vid.to_dict() for vid in vids]
         new_data = list(loaded_data)
         for vid in fetched_data:
@@ -128,10 +124,7 @@ def main() -> None:
     if args.download:
         download_count = 0
         while True:
-            if (
-                args.download_limit != -1
-                and download_count >= args.download_limit
-            ):
+            if args.download_limit != -1 and download_count >= args.download_limit:
                 break
             missing_downloads = find_missing_downloads(library_json)
             if not missing_downloads:
@@ -139,10 +132,7 @@ def main() -> None:
             vid = missing_downloads[0]
             next_url = vid["url"]
             next_mp3_path = vid["file_path"]
-            print(
-                f"\n#######################\n# Downloading missing file {next_url}: {next_mp3_path}\n"
-                "###################"
-            )
+            print(f"\n#######################\n# Downloading missing file {next_url}: {next_mp3_path}\n" "###################")
             yt_dlp_download_mp3(url=next_url, outmp3=next_mp3_path)
             download_count += 1
 
