@@ -33,7 +33,7 @@
     ],
     "[python]": {
         "editor.codeActionsOnSave": {
-            "source.fixAll": true,
+            "source.fixAll": false,
             "source.organizeImports": true
         }
     },

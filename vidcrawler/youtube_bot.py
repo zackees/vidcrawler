@@ -130,7 +130,7 @@ def fetch_all_vids(yt_channel_url: str, limit: int = -1) -> list[YtVid]:
         yt_channel_url=yt_channel_url, limit=limit
     )
     list_vids: list[list[YtVid]] = []
-    num_workers = max(1, os.cpu_count())
+    num_workers = max(1, os.cpu_count() or 0)
     with concurrent.futures.ThreadPoolExecutor(
         max_workers=num_workers
     ) as executor:
