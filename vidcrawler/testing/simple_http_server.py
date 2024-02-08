@@ -69,9 +69,7 @@ def simple_response_server_thread(
             assert resp.text == "this should match!!!!"
     """
     handler_class = make_handler_class(response_text_fcn=response_text_fcn)
-    tcp_server: socketserver.TCPServer = socketserver.TCPServer(
-        ("", port), handler_class
-    )
+    tcp_server: socketserver.TCPServer = socketserver.TCPServer(("", port), handler_class)
     tcp_server.allow_reuse_address = True
 
     try:
@@ -83,9 +81,7 @@ def simple_response_server_thread(
 
 
 def unit_test() -> None:
-    with simple_response_server_thread(
-        port=53925, response_text_fcn=lambda: "this should match!!!!"
-    ):
+    with simple_response_server_thread(port=53925, response_text_fcn=lambda: "this should match!!!!"):
         resp = requests.get("http://localhost:53925", timeout=_TIMEOUT)
         resp.raise_for_status()
         assert resp.text == "this should match!!!!"

@@ -20,9 +20,7 @@ _PATTERN_DATA_EPISODE_ID = re.compile('data-episode-id="([^"]*)"')
 
 
 def _fetch_html_using_curl(url: str) -> str:
-    out: bytes = subprocess.check_output(
-        "curl --max-time 10 -s -X GET " + url, shell=True
-    )
+    out: bytes = subprocess.check_output("curl --max-time 10 -s -X GET " + url, shell=True)
     return out.decode("utf-8")
 
 
@@ -106,9 +104,7 @@ def test() -> None:
 
     channel_id: str = input("Enter Channel ID: ")
     channel_name: str = input("Enter Channel Name: ")
-    vids: List[VideoInfo] = fetch_gabtv_today(
-        channel_name=channel_name, channel_id=channel_id
-    )
+    vids: List[VideoInfo] = fetch_gabtv_today(channel_name=channel_name, channel_id=channel_id)
     print("First two videos:")
     vids = vids[0:2]
     for v in vids:

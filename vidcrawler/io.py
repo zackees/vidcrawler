@@ -29,9 +29,7 @@ def write_utf8(out_path: str, content: str) -> None:
         fd.write(content)
 
 
-def make_export_json(
-    now: datetime, content: List[Any], network_name: str, telegram: str
-) -> Dict[str, Any]:
+def make_export_json(now: datetime, content: List[Any], network_name: str, telegram: str) -> Dict[str, Any]:
     # Type check, do we have a list of VideoInfo objects? If so convert to a list of dicts.
     if len(content) > 0:
         first = content[0]

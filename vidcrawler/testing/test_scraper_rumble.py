@@ -19,9 +19,7 @@ class RumbleScraperTester(unittest.TestCase):
 
     def test_fetch_bannon(self) -> None:
         max_days = 4
-        vid_list = fetch_rumble_channel_today(
-            channel="BannonsWarRoom", channel_name="BannonsWarRoom"
-        )
+        vid_list = fetch_rumble_channel_today(channel="BannonsWarRoom", channel_name="BannonsWarRoom")
         most_recent_date: Optional[datetime] = None
         vid: VideoInfo
         for vid in vid_list:
@@ -34,9 +32,7 @@ class RumbleScraperTester(unittest.TestCase):
         # get time delta between most recent date and now in days
         bannons_last_show_in_days: float = 9999
         if most_recent_date is not None:
-            bannons_last_show_in_days = (
-                now_local() - most_recent_date
-            ).total_seconds() / (3600 * 24)
+            bannons_last_show_in_days = (now_local() - most_recent_date).total_seconds() / (3600 * 24)
 
         self.assertLess(
             bannons_last_show_in_days,

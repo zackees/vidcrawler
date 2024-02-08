@@ -40,9 +40,7 @@ def fetch_spotify_today(channel_name: str, channel: str) -> List[VideoInfo]:
         episode_dom = BeautifulSoup(episode_html, "html.parser")
 
         def extract_meta_property(name: str) -> str:
-            dom = episode_dom.find(  # pylint: disable=cell-var-from-loop
-                "meta", {"name": name}
-            )
+            dom = episode_dom.find("meta", {"name": name})  # pylint: disable=cell-var-from-loop
             return str(dom["content"])
 
         img_url = extract_meta_property("og:image")

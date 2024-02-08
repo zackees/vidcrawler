@@ -50,9 +50,7 @@ def _try_get_cached_duration(url: str, cache_path: Optional[str]) -> Optional[in
     return None
 
 
-def _set_cached_duration(
-    url: str, duration_secs: int, cache_path: Optional[str]
-) -> None:
+def _set_cached_duration(url: str, duration_secs: int, cache_path: Optional[str]) -> None:
     if cache_path is None:
         return
     cache = _get_cache(cache_path)
@@ -93,16 +91,12 @@ def fetch_youtube_duration_str(url: str, cache_path: Optional[str]) -> str:
         out = strfdelta(duration_seconds)
         return out
     except requests.exceptions.HTTPError as e:
-        sys.stderr.write(
-            f'{__file__} Error while processing {url} for duration because "{str(e)}"\n'
-        )
+        sys.stderr.write(f'{__file__} Error while processing {url} for duration because "{str(e)}"\n')
         _set_cached_duration(url, -1, cache_path)
         return ""
 
 
-def _fetch_youtube_channel_via_rss(
-    channel_name: str, channel_id: str
-) -> List[VideoInfo]:
+def _fetch_youtube_channel_via_rss(channel_name: str, channel_id: str) -> List[VideoInfo]:
     url = "https://www.youtube.com/feeds/videos.xml?channel_id=" + channel_id
     sys.stdout.write(f"Youtube visiting {channel_name} ({url})\n")
     content = fetch_html(url)
@@ -117,9 +111,7 @@ def _fetch_youtube_channel_via_rss(
             continue
         # Disable profile picture for now.
         if _ENABLE_PROFILE_FETCH and profile_picture is None:
-            sys.stdout.write(
-                f"  Youtube visiting {entry.link} to fetch profile picture.\n"
-            )
+            sys.stdout.write(f"  Youtube visiting {entry.link} to fetch profile picture.\n")
             vid_html = fetch_html(entry.link)
             if vid_html is None:
                 sys.stdout.write(f"    Error - vid_html from {entry.link} was None")
@@ -128,9 +120,7 @@ def _fetch_youtube_channel_via_rss(
                     vid_info = parse_youtube_video(vid_html)
                     profile_picture = vid_info.get("profile_thumbnail", None)
                 except AttributeError as err:
-                    sys.stdout.write(
-                        f"Failed to get photo from {entry.link} because {err}.\n"
-                    )
+                    sys.stdout.write(f"Failed to get photo from {entry.link} because {err}.\n")
         now_datestr = iso_fmt(now_local())
         o = VideoInfo(
             channel_name=channel_name,
@@ -187,9 +177,7 @@ def _fetch_youtube_channel_via_html(
     for i, vid_url in enumerate(vid_urls):
         if limit != -1 and i >= limit:
             break
-        stdout = subprocess.check_output(f"youtube-dl {vid_url} -j", shell=True).decode(
-            "utf-8"
-        )
+        stdout = subprocess.check_output(f"youtube-dl {vid_url} -j", shell=True).decode("utf-8")
         data = json.loads(stdout)
         # Future:
         #  title = data['title']
@@ -215,9 +203,7 @@ def fetch_youtube_today(
         vid.duration = duration_time
     delta_time = start_time - time.time()
     if delta_time > 15:
-        sys.stdout.write(
-            f"WARNING, youtube scraper took {int(delta_time)} seconds to complete\n"
-        )
+        sys.stdout.write(f"WARNING, youtube scraper took {int(delta_time)} seconds to complete\n")
     return video_list
 
 
@@ -225,12 +211,8 @@ def _test_fetch_youtube_video_info(url: str) -> None:
     sys.stdout.write("Youtube visiting video %s\n" % url)
     html_doc = fetch_html(url)
     premiered_ago_matches = re.findall(r'\"Premiered (.{1,15}) ago"}', html_doc)
-    premiered_in_progress = re.findall(
-        r'\"Premiere in progress\. Started (.{1,15}) ago"}', html_doc
-    )
-    started_streaming_matches = re.findall(
-        r"\"Started streaming (.{1,15}) ago\"", html_doc
-    )
+    premiered_in_progress = re.findall(r'\"Premiere in progress\. Started (.{1,15}) ago"}', html_doc)
+    started_streaming_matches = re.findall(r"\"Started streaming (.{1,15}) ago\"", html_doc)
     video_is_private = '{"simpleText":"Private video"}' in html_doc
     unplayable = '"status":"UNPLAYABLE"' in html_doc
     # has_set_reminder = re.findall(r'\"simpleText\":\"Set reminder\"', html_doc)
@@ -289,9 +271,7 @@ def parse_youtube_video(html_doc: str) -> dict:
             if script.string.startswith(needle_initial_data):
                 img_urls = re.findall(r"\"(https://yt\d[^\"]+)\"", script.string)
                 for img_url in img_urls:
-                    if (
-                        "s176" in img_url
-                    ):  # For some reason this appears only in the thumbnail image.
+                    if "s176" in img_url:  # For some reason this appears only in the thumbnail image.
                         out["profile_thumbnail"] = img_url
                         break
             # Video Details contains a lot of gems, but is disabled for now.
@@ -310,11 +290,7 @@ def parse_youtube_video(html_doc: str) -> dict:
 def test_fetch_duration():
     url = "https://www.youtube.com/watch?v=UywxSWjzGaU"
     try:
-        cache_path_file = (
-            tempfile.NamedTemporaryFile(  # pylint: disable=consider-using-with
-                suffix=".db", delete=False
-            )
-        )
+        cache_path_file = tempfile.NamedTemporaryFile(suffix=".db", delete=False)  # pylint: disable=consider-using-with
         cache_path = cache_path_file.name
         cache_path_file.close()
         duration_str = fetch_youtube_duration_str(url, cache_path=cache_path)

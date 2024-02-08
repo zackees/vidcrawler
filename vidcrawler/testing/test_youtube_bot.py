@@ -14,7 +14,6 @@ URL_SILVERGURU = "https://www.youtube.com/@silverguru/videos"
 
 
 class YouTubeBotTester(unittest.TestCase):
-
     def test_fetch_sources(self) -> None:
         sources = list(fetch_all_sources(URL_SILVERGURU, limit=1))
         print("sources:")

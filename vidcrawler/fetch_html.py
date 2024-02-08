@@ -36,9 +36,7 @@ def fetch_html_using_request_lib(
 def fetch_html_using_curl(url: str, timeout: Optional[int] = None) -> str:
     """Uses the curl library to do a fetch"""
     timeout = int(timeout or 10)
-    out: bytes = subprocess.check_output(
-        f"curl --max-time {timeout} -s -X GET {url}", shell=True
-    )
+    out: bytes = subprocess.check_output(f"curl --max-time {timeout} -s -X GET {url}", shell=True)
     return out.decode("utf-8")
 
 

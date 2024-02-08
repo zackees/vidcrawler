@@ -38,9 +38,7 @@ def main() -> None:
     input_crawl_data = tmp
     # Execute the crawl
     time_start = time.time()
-    json_str: str = crawl_video_sites(
-        input_crawl_data, use_threads=not args.singlethreaded
-    )
+    json_str: str = crawl_video_sites(input_crawl_data, use_threads=not args.singlethreaded)
     time_delta = time.time() - time_start
     print("\nTook %.1f seconds to fetch content\n" % time_delta)
     with open(output_json, encoding="utf-8", mode="w") as filed:

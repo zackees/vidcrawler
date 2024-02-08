@@ -14,9 +14,7 @@ class GabTvTester(unittest.TestCase):
         self.assertGreater(len(views), 0)
 
     def test_fetch_gabtv_today(self) -> None:
-        vid_list: List[VideoInfo] = fetch_gabtv_today(
-            channel_name="Maryam Henein", channel_id="LadyBee"
-        )
+        vid_list: List[VideoInfo] = fetch_gabtv_today(channel_name="Maryam Henein", channel_id="LadyBee")
         self.assertGreater(len(vid_list), 0)
 
 

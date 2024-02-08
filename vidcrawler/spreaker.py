@@ -52,14 +52,10 @@ def fetch_spreaker_today(channel_name: str, channel: str) -> List[VideoInfo]:
     output: List[VideoInfo] = []
     for entry in feed.entries:
         try:
-            vid = rss_element_to_video_info(
-                channel_name=channel_name, rss_element=entry
-            )
+            vid = rss_element_to_video_info(channel_name=channel_name, rss_element=entry)
             output.append(vid)
         except BaseException as err:  # pylint: disable=broad-except
-            sys.stderr.write(
-                f"{__file__}: Error while parsing {channel_name} entry:\n {str(entry['title'])}:\n because of {err}"
-            )
+            sys.stderr.write(f"{__file__}: Error while parsing {channel_name} entry:\n {str(entry['title'])}:\n because of {err}")
     return output
 
 

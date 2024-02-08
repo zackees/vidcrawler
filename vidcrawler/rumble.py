@@ -55,9 +55,7 @@ def fetch_rumble_channel_today(channel_name: str, channel: str) -> List[VideoInf
     for article in soup.find_all("article", class_="video-item"):
         try:
             article_duration_dom = article.find(class_="video-item--duration")
-            duration = (
-                "" if not article_duration_dom else article_duration_dom["data-value"]
-            )
+            duration = "" if not article_duration_dom else article_duration_dom["data-value"]
             vid_src_suffix = article.find(class_="video-item--a")["href"]
             vid_src = "https://rumble.com%s" % vid_src_suffix
             sys.stdout.write("  visiting video %s (%s)\n" % (channel, vid_src))
@@ -97,9 +95,7 @@ def fetch_rumble_channel_today(channel_name: str, channel: str) -> List[VideoInf
             output.append(o)
         except BaseException as e:  # pylint: disable=broad-except
             s = "".join(traceback.format_exception(None, e, e.__traceback__))
-            sys.stdout.write(
-                "Error: %s\nCould not parse\n%s\n\n" % (str(s), str(article))
-            )
+            sys.stdout.write("Error: %s\nCould not parse\n%s\n\n" % (str(s), str(article)))
     return output
 
 

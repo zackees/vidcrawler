@@ -23,9 +23,7 @@ IS_GITHUB_RUNNER = (
 class BitchuteScraperTester(unittest.TestCase):
     """Tester for bitchute."""
 
-    @unittest.skipIf(
-        IS_GITHUB_RUNNER, "Skip amazing polly on github actions, it fails."
-    )
+    @unittest.skipIf(IS_GITHUB_RUNNER, "Skip amazing polly on github actions, it fails.")
     def test_fetch_rss_video(self):
         rss_url = fetch_rss_url(channel_name="Infowars", channel_id="9c7qJvwx7YQT")
         self.assertIsNotNone(rss_url)
@@ -37,22 +35,14 @@ class BitchuteScraperTester(unittest.TestCase):
         feed = parse_rss_feed(content)
         self.assertIsNotNone(feed)
 
-    @unittest.skipIf(
-        IS_GITHUB_RUNNER, "Skip amazing polly on github actions, it fails."
-    )
+    @unittest.skipIf(IS_GITHUB_RUNNER, "Skip amazing polly on github actions, it fails.")
     def test_fetch_bitchute_today(self):
-        vid_list = fetch_bitchute_today(
-            channel_name="Infowars", channel_id="9c7qJvwx7YQT"
-        )
+        vid_list = fetch_bitchute_today(channel_name="Infowars", channel_id="9c7qJvwx7YQT")
         self.assertIsNotNone(vid_list)
 
-    @unittest.skipIf(
-        IS_GITHUB_RUNNER, "Skip amazing polly on github actions, it fails."
-    )
+    @unittest.skipIf(IS_GITHUB_RUNNER, "Skip amazing polly on github actions, it fails.")
     def test_fetch_bitchute_amazing_polly(self):
-        vid_list = fetch_bitchute_today(
-            channel_name="Amazing Polly", channel_id="ZofFQQoDoqYT"
-        )
+        vid_list = fetch_bitchute_today(channel_name="Amazing Polly", channel_id="ZofFQQoDoqYT")
         self.assertTrue(vid_list)
         vid = vid_list[0]
         self.assertEqual("Amazing Polly", vid.channel_name)

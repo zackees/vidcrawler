@@ -41,9 +41,7 @@ def parse_rss_url(html_doc: str) -> Optional[str]:
     return rss_url
 
 
-def fetch_rss_url(
-    channel_name: str, channel_id: str  # pylint: disable=unused-argument
-) -> Optional[str]:
+def fetch_rss_url(channel_name: str, channel_id: str) -> Optional[str]:  # pylint: disable=unused-argument
     channel_url = "https://www.bitchute.com/channel/%s/" % channel_id
     html_doc = fetch_html(channel_url)
     return parse_rss_url(html_doc)
@@ -93,9 +91,7 @@ def fetch_bitchute_today(channel_name: str, channel_id: str) -> List[VideoInfo]:
     rss_url = parse_rss_url(html_doc)
     date_published_map = {}
     if rss_url is None:
-        sys.stderr.write(
-            "---- ERROR ---- Failed to parse rss_channel for %s\n" % channel_url
-        )
+        sys.stderr.write("---- ERROR ---- Failed to parse rss_channel for %s\n" % channel_url)
     else:
         rss_content = fetch_html(rss_url)
         # These objects contain the video publishing date.
@@ -143,7 +139,5 @@ def fetch_bitchute_today(channel_name: str, channel_id: str) -> List[VideoInfo]:
         )
         output.append(o)
     if skipped_vid_urls:
-        sys.stdout.write(
-            f"{__file__}: Skipping {len(skipped_vid_urls)} videos from {channel_name} because no data from rss.\n"
-        )
+        sys.stdout.write(f"{__file__}: Skipping {len(skipped_vid_urls)} videos from {channel_name} because no data from rss.\n")
     return output
