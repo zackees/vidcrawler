@@ -80,15 +80,21 @@ def fetch_all_sources(
     max_index = limit if limit > 0 else 1000
     with open_webdriver(headless=HEADLESS) as driver:
 
+        def get_vid_attribute(vid) -> str:
+            try:
+                return str(vid.get_attribute("outerHTML"))
+            except StaleElementException:
+                warnings.warn("skipping stale element")
+                return ""
+
         def get_contents() -> list[str]:
             vids = driver.find_elements_by_tag_name("ytd-rich-item-renderer")
-            out: list[str] = []
-            for vid in vids:
-                try:
-                    data = str(vid.get_attribute("outerHTML"))
-                    out.append(data)
-                except StaleElementException:
-                    warnings.warn("skipping stale element")
+            with concurrent.futures.ThreadPoolExecutor(
+                max_workers=8
+            ) as executor:
+                out: list[str] = list(executor.map(get_vid_attribute, vids))
+                # filter out empty strings
+                out = [x for x in out if x]
             return out
 
         # All Chromium / web driver dependencies are now installed.
