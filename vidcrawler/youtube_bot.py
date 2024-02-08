@@ -152,7 +152,7 @@ def fetch_all_sources(
         for item in get_contents():
             yield item
         last_scroll_height = 0
-        for index in range(max_index):
+        for index in range(max_index + 1):
             driver.execute_script(JS_SCROLL_TO_BOTTOM)
             time.sleep(JS_SCROLL_TO_BOTTOM_WAIT)
             # yield get_contents()
@@ -161,12 +161,12 @@ def fetch_all_sources(
             scroll_height = driver.execute_script(
                 "return document.documentElement.scrollHeight"
             )
-            print(f"scroll_height: {scroll_height}")
+            print("scrolling for new content")
             scroll_diff = abs(scroll_height - last_scroll_height)
             if scroll_diff < 100:
                 break
             last_scroll_height = scroll_height
-        if index == max_index - 1 and limit <= 0:
+        if index == max_index and limit <= 0:
             warnings.warn("Reached max scroll limit.")
 
 

@@ -35,6 +35,12 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Download the videos as mp3s",
     )
+    parser.add_argument(
+        "--download-limit",
+        type=int,
+        default=-1,
+        help="Limit the number of videos to download",
+    )
     return parser.parse_args()
 
 
@@ -120,7 +126,13 @@ def main() -> None:
         save_json(library_json, new_data)
     print(f"Updated {library_json}")
     if args.download:
+        download_count = 0
         while True:
+            if (
+                args.download_limit != -1
+                and download_count >= args.download_limit
+            ):
+                break
             missing_downloads = find_missing_downloads(library_json)
             if not missing_downloads:
                 break
@@ -128,10 +140,11 @@ def main() -> None:
             next_url = vid["url"]
             next_mp3_path = vid["file_path"]
             print(
-                f"\n#######################\n# Downlading missing file {next_url}: {next_mp3_path}\n"
+                f"\n#######################\n# Downloading missing file {next_url}: {next_mp3_path}\n"
                 "###################"
             )
             yt_dlp_download_mp3(url=next_url, outmp3=next_mp3_path)
+            download_count += 1
 
 
 if __name__ == "__main__":
@@ -140,6 +153,8 @@ if __name__ == "__main__":
     sys.argv.append("@silverguru")
     sys.argv.append("tmp")
     sys.argv.append("--limit-scroll-pages")
-    sys.argv.append("0")
+    sys.argv.append("1")
     sys.argv.append("--download")
+    sys.argv.append("--download-limit")
+    sys.argv.append("1")
     main()

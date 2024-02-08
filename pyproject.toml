@@ -44,4 +44,4 @@ exclude = '''
 [project.scripts]
 vidcrawler = "vidcrawler.cmd:main"
 vidcrawler_test = "vidcrawler.run_tests:main"
-youtube-pull = "vidcrawler.youtube_pull:main"
+youtube-pull-channel = "vidcrawler.youtube_pull:main"
