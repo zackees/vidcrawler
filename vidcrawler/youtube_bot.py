@@ -15,6 +15,9 @@ from typing import Generator
 
 from bs4 import BeautifulSoup  # type: ignore
 from open_webdriver import open_webdriver  # type: ignore
+from selenium.common.exceptions import (
+    StaleElementReferenceException as StaleElementException,  # type: ignore
+)
 
 # from be
 
@@ -82,7 +85,11 @@ def fetch_all_sources(
             vids = driver.find_elements_by_tag_name("ytd-rich-item-renderer")
             out: list[str] = []
             for vid in vids:
-                out.append(str(vid.get_attribute("outerHTML")))
+                try:
+                    data = str(vid.get_attribute("outerHTML"))
+                    out.append(data)
+                except StaleElementException:
+                    warnings.warn("skipping stale element")
             return out
 
         # All Chromium / web driver dependencies are now installed.
@@ -111,15 +118,25 @@ def fetch_all_sources(
 
 def fetch_all_vids(yt_channel_url: str, limit: int = -1) -> list[YtVid]:
     """Open a web driver and navigate to Google. yt_channel_url should be of the form https://www.youtube.com/@silverguru/videos"""
-    sources = list(
-        fetch_all_sources(yt_channel_url=yt_channel_url, limit=limit)
+    # sources = list(
+    #    fetch_all_sources(yt_channel_url=yt_channel_url, limit=limit)
+    # )
+    pending_fetches = fetch_all_sources(
+        yt_channel_url=yt_channel_url, limit=limit
     )
-    allvids = parse_youtube_videos(list(sources))
-    unique_vids: list[YtVid] = []
-    for vid in allvids:  # keep unique vids in order
-        if vid not in unique_vids:
-            unique_vids.append(vid)
-    return unique_vids
+    # unique_vids: list[YtVid] = []
+    list_vids: list[list[YtVid]] = []
+    for sources in pending_fetches:
+        vids = parse_youtube_videos([sources])
+        list_vids.append(vids)
+    unique_vids: set[YtVid] = set()
+    out_vids: list[YtVid] = []
+    for vids in list_vids:
+        for vid in vids:
+            if vid not in unique_vids:
+                unique_vids.add(vid)
+                out_vids.append(vid)
+    return out_vids
 
 
 def main() -> int:
