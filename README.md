@@ -52,6 +52,10 @@ Install vidcrawler and then the command `vidcralwer_test` will become available.
 > vidcrawler_test
 ```
 
+# youtube-pull-channel
+
+This new command will a channel and all of it's files as mp3s. Great for transcribing and putting into an LLM.
+
 
 #### Example input `fetch_list.json`
 
