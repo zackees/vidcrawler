@@ -28,3 +28,7 @@ exclude = '''
                      # the root of the project
 )
 '''
+
+[project.scripts]
+vidcrawler = "vidcrawler.cmd:main"
+vidcrawler_test = "vidcrawler.run_tests:main"

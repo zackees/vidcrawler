@@ -25,9 +25,7 @@ HEADLESS = IS_GITHUB_RUNNER
 
 URL = "https://www.youtube.com/@silverguru/videos"
 
-JS_SCROLL_TO_BOTTOM = (
-    "window.scrollTo(0, document.documentElement.scrollHeight);"
-)
+JS_SCROLL_TO_BOTTOM = "window.scrollTo(0, document.documentElement.scrollHeight);"
 JS_SCROLL_TO_BOTTOM_WAIT = 1
 URL_BASE = "https://www.youtube.com"
 
@@ -74,9 +72,7 @@ def parse_youtube_videos(div_strs: list[str]) -> list[YtVid]:
     return out
 
 
-def fetch_all_sources(
-    yt_channel_url: str, limit: int = -1
-) -> Generator[str, None, None]:
+def fetch_all_sources(yt_channel_url: str, limit: int = -1) -> Generator[str, None, None]:
     max_index = limit if limit > 0 else 1000
     with open_webdriver(headless=HEADLESS) as driver:
 
@@ -89,9 +85,7 @@ def fetch_all_sources(
 
         def get_contents() -> list[str]:
             vids = driver.find_elements_by_tag_name("ytd-rich-item-renderer")
-            with concurrent.futures.ThreadPoolExecutor(
-                max_workers=8
-            ) as executor:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
                 out: list[str] = list(executor.map(get_vid_attribute, vids))
                 # filter out empty strings
                 out = [x for x in out if x]
@@ -109,9 +103,7 @@ def fetch_all_sources(
             # yield get_contents()
             for item in get_contents():
                 yield item
-            scroll_height = driver.execute_script(
-                "return document.documentElement.scrollHeight"
-            )
+            scroll_height = driver.execute_script("return document.documentElement.scrollHeight")
             print(f"scroll_height: {scroll_height}")
             scroll_diff = abs(scroll_height - last_scroll_height)
             if scroll_diff < 100:
@@ -126,14 +118,10 @@ def fetch_all_vids(yt_channel_url: str, limit: int = -1) -> list[YtVid]:
     Open a web driver and navigate to Google. yt_channel_url should be
     of the form https://www.youtube.com/@silverguru/videos
     """
-    pending_fetches = fetch_all_sources(
-        yt_channel_url=yt_channel_url, limit=limit
-    )
+    pending_fetches = fetch_all_sources(yt_channel_url=yt_channel_url, limit=limit)
     list_vids: list[list[YtVid]] = []
     num_workers = max(1, os.cpu_count() or 0)
-    with concurrent.futures.ThreadPoolExecutor(
-        max_workers=num_workers
-    ) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=num_workers) as executor:
         future_to_vid = {}
         for sources in pending_fetches:
             future = executor.submit(parse_youtube_videos, [sources])

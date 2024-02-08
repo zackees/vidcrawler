@@ -127,12 +127,6 @@ setup(
     ),
     package_data={},
     include_package_data=True,
-    entry_points={
-        "console_scripts": [
-            "vidcrawler = vidcrawler.cmd:main",
-            "vidcrawler_test = vidcrawler.run_tests:main",
-        ],
-    },
     cmdclass={
         "upload": UploadCommand,
     },
