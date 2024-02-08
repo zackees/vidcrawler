@@ -45,41 +45,13 @@ class YtVid:
         data = {"url": self.url, "title": self.title}
         return json.dumps(data)
 
-    # class static
-    @staticmethod
-    def merge(vids: list[list["YtVid"]]) -> list["YtVid"]:
-        """Merge lists of videos."""
-        # Flatten the list of lists
-        flattened_vids = [vid for sublist in vids for vid in sublist]
-        # Convert the flattened list into a set to remove duplicates, then back to a list
-        out = list(set(flattened_vids))
-        return out
 
-
-def parse_youtube_videos(content: str) -> list[YtVid]:
+def parse_youtube_videos(div_strs: list[str]) -> list[YtVid]:
+    """Div containing the youtube video, which has a title and an href."""
     out: list[YtVid] = []
-    soup = BeautifulSoup(content, "html.parser")
-    # search for div with id="contents"
-    try:
-        div = soup.find(id="contents")
-        vid_rows = div.find_all("ytd-rich-grid-row", recursive=False)
-        vid_divs: list = []
-        for row in vid_rows:
-            # vids = parse_youtube_videos_from_row(row)
-            # "ytd-rich-item-renderer"
-            vids = row.find_all("ytd-rich-item-renderer")
-            vid_divs.extend(vids)
-            # out.extend(vids)
-    #  vid_divs = div.find_all("ytd-rich-item-renderer")
-    except Exception as err:  # pylint: disable=broad-except
-        stack_trace = traceback.format_exc()
-        warnings.warn(f"Error could not scrape channel: {err} {stack_trace}")
-        return
-    # find each element "ytd-rich-item-renderer"
-    for item in vid_divs:
-        # print(item)
-        # find #video-title-link
-        title_link = item.find("a", id="video-title-link")
+    for div_str in div_strs:
+        soup = BeautifulSoup(div_str, "html.parser")
+        title_link = soup.find("a", id="video-title-link")
         try:
             title = title_link.get("title")
             href = title_link.get("href")
@@ -105,22 +77,21 @@ def fetch_all_sources(yt_channel_url: str, limit: int = -1) -> list[str]:
     with open_webdriver(headless=HEADLESS) as driver:
 
         def get_contents() -> list[str]:
-            content_div = driver.find_element_by_id("contents")
-            content = content_div.get_attribute("outerHTML")
-            return [content]
+            out: list[str] = []
+            vids = driver.find_elements_by_tag_name("ytd-rich-item-renderer")
+            for vid in vids:
+                content = vid.get_attribute("outerHTML")
+                out.append(content)
+            return out
 
         # All Chromium / web driver dependencies are now installed.
         driver.get(yt_channel_url)
         time.sleep(JS_SCROLL_TO_BOTTOM_WAIT)
-        # driver.find_element_by_id("search").send_keys("seleniumhq" + Keys.RETURN)
-        # assert "No results found." not in driver.page_source
         contents = get_contents()
-        # content = driver.page_source
         sources.extend(contents)
         last_scroll_height = 0
         for index in range(max_index):
             driver.execute_script(JS_SCROLL_TO_BOTTOM)
-            # driver.implicitly_wait(JS_SCROLL_TO_BOTTOM_WAIT)
             time.sleep(JS_SCROLL_TO_BOTTOM_WAIT)
             contents = get_contents()
             sources.extend(contents)
@@ -140,8 +111,13 @@ def fetch_all_sources(yt_channel_url: str, limit: int = -1) -> list[str]:
 def fetch_all_vids(yt_channel_url: str) -> list[YtVid]:
     """Open a web driver and navigate to Google. yt_channel_url should be of the form https://www.youtube.com/@silverguru/videos"""
     sources: list[str] = fetch_all_sources(yt_channel_url)
-    vidlist = YtVid.merge([parse_youtube_videos(source) for source in sources])
-    return vidlist
+    # vidlist = YtVid.reduce(parse_youtube_videos(sources))
+    allvids = parse_youtube_videos(sources)
+    unique_vids: list[YtVid] = []
+    for vid in allvids:  # keep unique vids in order
+        if vid not in unique_vids:
+            unique_vids.append(vid)
+    return unique_vids
 
 
 def main() -> int:

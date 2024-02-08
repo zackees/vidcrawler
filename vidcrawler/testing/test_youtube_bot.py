@@ -18,9 +18,9 @@ class YouTubeBotTester(unittest.TestCase):
     def test_fetch_sources(self) -> None:
         sources = fetch_all_sources(URL_SILVERGURU, limit=1)
         print("sources:")
-        for source in sources:
-            print(f"  {source}")
-        vids: list[YtVid] = parse_youtube_videos(sources[0])
+        # for source in sources:
+        #    print(f"  {source}")
+        vids: list[YtVid] = parse_youtube_videos(sources)
         self.assertGreater(len(vids), 0)
         print("vids:")
         for vid in vids:
