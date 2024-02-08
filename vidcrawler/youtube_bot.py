@@ -22,7 +22,8 @@ from selenium.common.exceptions import (
 )
 
 IS_GITHUB_RUNNER = os.environ.get("GITHUB_ACTIONS") == "true"
-HEADLESS = IS_GITHUB_RUNNER
+# Always headless now.
+HEADLESS = IS_GITHUB_RUNNER or True
 
 URL = "https://www.youtube.com/@silverguru/videos"
 

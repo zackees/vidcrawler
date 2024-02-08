@@ -111,6 +111,7 @@ Install vidcrawler and then the command `vidcralwer_test` will become available.
 ```
 
 # Releases
+  * 1.0.10: Adds `youtube-pull-channel` which pulls all files down as mp3s for a channel.
   * 1.0.9: Fixes crawler for rumble and minor fixes + linting fixes.
   * 1.0.8: Readme correction.
   * 1.0.7: Fixes Odysee scraper by including image/webp thumbnail format.
