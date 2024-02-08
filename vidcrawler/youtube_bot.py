@@ -11,6 +11,7 @@ import time
 import traceback
 import warnings
 from dataclasses import dataclass
+from typing import Generator
 
 from bs4 import BeautifulSoup  # type: ignore
 from open_webdriver import open_webdriver  # type: ignore
@@ -71,30 +72,31 @@ def parse_youtube_videos(div_strs: list[str]) -> list[YtVid]:
     return out
 
 
-def fetch_all_sources(yt_channel_url: str, limit: int = -1) -> list[str]:
+def fetch_all_sources(
+    yt_channel_url: str, limit: int = -1
+) -> Generator[list[str], None, None]:
     max_index = limit if limit > 0 else 1000
-    sources: list[str] = []
     with open_webdriver(headless=HEADLESS) as driver:
 
         def get_contents() -> list[str]:
-            out: list[str] = []
             vids = driver.find_elements_by_tag_name("ytd-rich-item-renderer")
+            out: list[str] = []
             for vid in vids:
-                content = vid.get_attribute("outerHTML")
-                out.append(content)
+                out.append(str(vid.get_attribute("outerHTML")))
             return out
 
         # All Chromium / web driver dependencies are now installed.
         driver.get(yt_channel_url)
         time.sleep(JS_SCROLL_TO_BOTTOM_WAIT)
-        contents = get_contents()
-        sources.extend(contents)
+        for item in get_contents():
+            yield item
         last_scroll_height = 0
         for index in range(max_index):
             driver.execute_script(JS_SCROLL_TO_BOTTOM)
             time.sleep(JS_SCROLL_TO_BOTTOM_WAIT)
-            contents = get_contents()
-            sources.extend(contents)
+            # yield get_contents()
+            for item in get_contents():
+                yield item
             scroll_height = driver.execute_script(
                 "return document.documentElement.scrollHeight"
             )
@@ -105,14 +107,14 @@ def fetch_all_sources(yt_channel_url: str, limit: int = -1) -> list[str]:
             last_scroll_height = scroll_height
         if index == max_index - 1 and limit <= 0:
             warnings.warn("Reached max scroll limit.")
-    return sources
 
 
-def fetch_all_vids(yt_channel_url: str) -> list[YtVid]:
+def fetch_all_vids(yt_channel_url: str, limit: int = -1) -> list[YtVid]:
     """Open a web driver and navigate to Google. yt_channel_url should be of the form https://www.youtube.com/@silverguru/videos"""
-    sources: list[str] = fetch_all_sources(yt_channel_url)
-    # vidlist = YtVid.reduce(parse_youtube_videos(sources))
-    allvids = parse_youtube_videos(sources)
+    sources = list(
+        fetch_all_sources(yt_channel_url=yt_channel_url, limit=limit)
+    )
+    allvids = parse_youtube_videos(list(sources))
     unique_vids: list[YtVid] = []
     for vid in allvids:  # keep unique vids in order
         if vid not in unique_vids:
