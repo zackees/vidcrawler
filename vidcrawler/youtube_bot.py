@@ -166,7 +166,7 @@ def fetch_all_sources(yt_channel_url: str, limit: int = -1) -> Generator[str, No
             for item in get_contents():
                 yield item
             scroll_height = driver.execute_script("return document.documentElement.scrollHeight")
-            print("scrolling for new content")
+            print(f"#### {index}: scrolling for new content ####")
             scroll_diff = abs(scroll_height - last_scroll_height)
             if scroll_diff < 100:
                 break

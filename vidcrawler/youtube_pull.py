@@ -10,6 +10,7 @@ import os
 import subprocess
 
 from filelock import FileLock
+from static_ffmpeg import add_paths
 
 from vidcrawler.youtube_bot import YtVid, fetch_all_vids
 
@@ -71,6 +72,7 @@ def to_channel_url(channel: str) -> str:
 
 def yt_dlp_download_mp3(url: str, outmp3: str) -> None:
     """Download the youtube video as an mp3."""
+    add_paths(weak=True)
     par_dir = os.path.dirname(outmp3)
     if par_dir:
         os.makedirs(par_dir, exist_ok=True)

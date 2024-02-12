@@ -11,3 +11,4 @@ types-requests
 open-webdriver>=1.4.5
 filelock
 yt-dlp>=2023.3.4
+static-ffmpeg
