@@ -115,6 +115,7 @@ This new command will a channel and all of it's files as mp3s. Great for transcr
 ```
 
 # Releases
+  * 1.0.11: Improves `youtube-pull-channel`
   * 1.0.10: Adds `youtube-pull-channel` which pulls all files down as mp3s for a channel.
   * 1.0.9: Fixes crawler for rumble and minor fixes + linting fixes.
   * 1.0.8: Readme correction.
