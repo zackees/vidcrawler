@@ -17,7 +17,7 @@ class PlaywrightTester(unittest.TestCase):
     def setUpClass(cls):
         rtn = os.system("playwright install")
         if rtn != 0:
-            raise Exception("Failed to install Playwright.")
+            raise OSError("Failed to install Playwright.")
         cls.playwright = sync_playwright().start()
         # Launch a headed browser by setting headless to False
         cls.browser = cls.playwright.chromium.launch(headless=IS_GITHUB_RUNNER)
