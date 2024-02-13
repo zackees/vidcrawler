@@ -42,6 +42,11 @@ def parse_args() -> argparse.Namespace:
         default=-1,
         help="Limit the number of videos to download",
     )
+    parser.add_argument(
+        "--skip-scan",
+        action="store_true",
+        help="Skip the update of the library.json file",
+    )
     return parser.parse_args()
 
 
@@ -115,18 +120,24 @@ def main() -> None:
     library_json = os.path.join(output_dir, "library.json")
     # load the json data if it already exists
     file_lock = library_json + ".lock"
-    with FileLock(file_lock):
-        loaded_data = load_json(library_json)
-        vids: list[YtVid] = fetch_all_vids(
-            channel_url, limit=limit_scroll_pages
+    if not args.skip_scan:
+        with FileLock(file_lock):
+            loaded_data = load_json(library_json)
+            vids: list[YtVid] = fetch_all_vids(
+                channel_url, limit=limit_scroll_pages
+            )
+            fetched_data = [vid.to_dict() for vid in vids]
+            new_data = list(loaded_data)
+            for vid in fetched_data:
+                if vid not in loaded_data:
+                    new_data.append(vid)
+            save_json(library_json, new_data)
+        print(f"Updated {library_json}")
+
+    if not os.path.exists(library_json):
+        raise FileNotFoundError(
+            f"{library_json} does not exist. Cannot skip scan."
         )
-        fetched_data = [vid.to_dict() for vid in vids]
-        new_data = list(loaded_data)
-        for vid in fetched_data:
-            if vid not in loaded_data:
-                new_data.append(vid)
-        save_json(library_json, new_data)
-    print(f"Updated {library_json}")
     if args.download:
         download_count = 0
         while True:
