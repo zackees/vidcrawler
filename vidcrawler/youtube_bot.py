@@ -28,9 +28,7 @@ HEADLESS = IS_GITHUB_RUNNER or True
 
 URL = "https://www.youtube.com/@silverguru/videos"
 
-JS_SCROLL_TO_BOTTOM = (
-    "window.scrollTo(0, document.documentElement.scrollHeight);"
-)
+JS_SCROLL_TO_BOTTOM = "window.scrollTo(0, document.documentElement.scrollHeight);"
 JS_SCROLL_TO_BOTTOM_WAIT = 1
 URL_BASE = "https://www.youtube.com"
 
@@ -66,11 +64,7 @@ def sanitize_filepath(path: str, replacement_char: str = "_") -> str:
     :return: A sanitized version of the file path.
     """
     # Normalize unicode characters
-    path = (
-        unicodedata.normalize("NFKD", path)
-        .encode("ascii", "ignore")
-        .decode("ascii")
-    )
+    path = unicodedata.normalize("NFKD", path).encode("ascii", "ignore").decode("ascii")
 
     # Replace invalid file path characters
     invalid_chars = r'<>:"/\\|?*'
@@ -81,9 +75,7 @@ def sanitize_filepath(path: str, replacement_char: str = "_") -> str:
     path = path.strip(". ")
 
     # Avoid reserved names in Windows like CON, PRN, AUX, NUL, etc.
-    reserved_names = ["CON", "PRN", "AUX", "NUL"] + [
-        f"{name}{i}" for name in ["COM", "LPT"] for i in range(1, 10)
-    ]
+    reserved_names = ["CON", "PRN", "AUX", "NUL"] + [f"{name}{i}" for name in ["COM", "LPT"] for i in range(1, 10)]
     basename = path.split("/")[-1]
     if basename.upper() in reserved_names:
         path = path.replace(basename, replacement_char + basename)
@@ -124,51 +116,48 @@ def parse_youtube_videos(div_strs: list[str]) -> list[YtVid]:
     return out
 
 
-def fetch_source_cached(unique_id: str, value_cb: Callable[[], str]) -> str:
+def fetch_source_cached(unique_id: str, value_cb: Callable[[], str]) -> tuple[str, bool]:
     if unique_id in CACHE_OUTER_HTML:
-        return CACHE_OUTER_HTML[unique_id]
+        return CACHE_OUTER_HTML[unique_id], True
     value = value_cb()
     CACHE_OUTER_HTML[unique_id] = value
-    return value
+    return value, False
 
 
 def clear_source_cache() -> None:
     CACHE_OUTER_HTML.clear()
 
 
-def fetch_all_sources(
-    yt_channel_url: str, limit: int = -1
-) -> Generator[str, None, None]:
+def fetch_all_sources(yt_channel_url: str, limit: int = -1) -> Generator[str, None, None]:
     clear_source_cache()
     max_index = limit if limit > 0 else 1000
     with open_webdriver(headless=HEADLESS) as driver:
 
-        def get_vid_attribute(vid: Any) -> str:
+        def get_vid_attribute(vid: Any) -> str | None:
             try:
                 try:
                     unique_id = getattr(vid, "id")
-                    html = fetch_source_cached(
-                        unique_id, lambda: str(vid.get_attribute("outerHTML"))
-                    )
+                    html, cached = fetch_source_cached(unique_id, lambda: str(vid.get_attribute("outerHTML")))
+                    if cached:
+                        return None
                     return html
                 except AttributeError:
                     pass
                 return str(vid.get_attribute("outerHTML"))
             except StaleElementException:
                 warnings.warn("skipping stale element")
-                return ""
+                return None
 
         def get_contents() -> list[str]:
             vids = driver.find_elements_by_tag_name("ytd-rich-item-renderer")
-            with concurrent.futures.ThreadPoolExecutor(
-                max_workers=8
-            ) as executor:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
                 futures: list = []
                 for vid in vids:
+                    # Only new videos will be resolved. All cached values will be None.
                     future = executor.submit(get_vid_attribute, vid)
                     futures.append(future.result)
                 out = [future() for future in futures]
-                # filter out empty strings
+                # filter out None and empty strings (happens if error).
                 out = [x for x in out if x]
             return out
 
@@ -184,9 +173,7 @@ def fetch_all_sources(
             # yield get_contents()
             for item in get_contents():
                 yield item
-            scroll_height = driver.execute_script(
-                "return document.documentElement.scrollHeight"
-            )
+            scroll_height = driver.execute_script("return document.documentElement.scrollHeight")
             print(f"#### {index}: scrolling for new content ####")
             scroll_diff = abs(scroll_height - last_scroll_height)
             if scroll_diff < 100:
@@ -209,14 +196,10 @@ def fetch_all_vids(yt_channel_url: str, limit: int = -1) -> list[YtVid]:
     """
     if not test_channel_url(yt_channel_url):
         raise ValueError(f"Invalid channel url: {yt_channel_url}")
-    pending_fetches = fetch_all_sources(
-        yt_channel_url=yt_channel_url, limit=limit
-    )
+    pending_fetches = fetch_all_sources(yt_channel_url=yt_channel_url, limit=limit)
     list_vids: list[list[YtVid]] = []
     num_workers = max(1, os.cpu_count() or 0)
-    with concurrent.futures.ThreadPoolExecutor(
-        max_workers=num_workers
-    ) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=num_workers) as executor:
         future_to_vid = {}
         for sources in pending_fetches:
             future = executor.submit(parse_youtube_videos, [sources])

@@ -22,7 +22,7 @@ def parse_args() -> argparse.Namespace:
         "channel",
         type=str,
         # help="URL of the channel, example: https://www.youtube.com/@silverguru/videos",
-        help="URL of the channel, example: @silverguru",
+        help="URL slug of the channel, example: @silverguru",
     )
     parser.add_argument("basedir", type=str)
     parser.add_argument(
@@ -34,7 +34,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--download",
         action="store_true",
-        help="Download the videos as mp3s",
+        help="Deprecated: This option does nothing.",
+    )
+    parser.add_argument(
+        "--skip-download",
+        action="store_true",
+        help="Skip the download of the videos.",
     )
     parser.add_argument(
         "--download-limit",
@@ -100,9 +105,7 @@ def find_missing_downloads(library_json_path: str) -> list[dict]:
         data = json.load(filed)
     for vid in data:
         title = vid["title"]
-        file_path = os.path.join(
-            os.path.dirname(library_json_path), f"{title}.mp3"
-        )
+        file_path = os.path.join(os.path.dirname(library_json_path), f"{title}.mp3")
         if not os.path.exists(file_path):
             vid["file_path"] = file_path
             out.append(vid)
@@ -123,9 +126,7 @@ def main() -> None:
     if not args.skip_scan:
         with FileLock(file_lock):
             loaded_data = load_json(library_json)
-            vids: list[YtVid] = fetch_all_vids(
-                channel_url, limit=limit_scroll_pages
-            )
+            vids: list[YtVid] = fetch_all_vids(channel_url, limit=limit_scroll_pages)
             fetched_data = [vid.to_dict() for vid in vids]
             new_data = list(loaded_data)
             for vid in fetched_data:
@@ -135,16 +136,13 @@ def main() -> None:
         print(f"Updated {library_json}")
 
     if not os.path.exists(library_json):
-        raise FileNotFoundError(
-            f"{library_json} does not exist. Cannot skip scan."
-        )
+        raise FileNotFoundError(f"{library_json} does not exist. Cannot skip scan.")
     if args.download:
+        print("Warning: The --download option is deprecated is now implied. Use --skip-download to avoid downloading")
+    if not args.skip_download:
         download_count = 0
         while True:
-            if (
-                args.download_limit != -1
-                and download_count >= args.download_limit
-            ):
+            if args.download_limit != -1 and download_count >= args.download_limit:
                 break
             missing_downloads = find_missing_downloads(library_json)
             if not missing_downloads:
@@ -152,10 +150,7 @@ def main() -> None:
             vid = missing_downloads[0]
             next_url = vid["url"]
             next_mp3_path = vid["file_path"]
-            print(
-                f"\n#######################\n# Downloading missing file {next_url}: {next_mp3_path}\n"
-                "###################"
-            )
+            print(f"\n#######################\n# Downloading missing file {next_url}: {next_mp3_path}\n" "###################")
             yt_dlp_download_mp3(url=next_url, outmp3=next_mp3_path)
             download_count += 1
 
@@ -167,5 +162,4 @@ if __name__ == "__main__":
     sys.argv.append("tmp")
     sys.argv.append("--limit-scroll-pages")
     sys.argv.append("1")
-    sys.argv.append("--download")
     main()
