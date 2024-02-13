@@ -1,3 +1,7 @@
+"""
+Tests for Playwright.
+"""
+
 import os
 import unittest
 
