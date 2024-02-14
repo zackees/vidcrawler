@@ -98,18 +98,27 @@ def main() -> None:
     library_json = os.path.join(output_dir, "library.json")
     library = LibraryJson(library_json)
     if not args.skip_scan:
-        vids: list[YtVid] = fetch_all_vids(channel_url, limit=limit_scroll_pages)
+        vids: list[YtVid] = fetch_all_vids(
+            channel_url, limit=limit_scroll_pages
+        )
         library.merge(vids)
         print(f"Updated {library_json}")
     else:
         if not os.path.exists(library_json):
-            raise FileNotFoundError(f"{library_json} does not exist. Cannot skip scan.")
+            raise FileNotFoundError(
+                f"{library_json} does not exist. Cannot skip scan."
+            )
     if args.download:
-        print("Warning: The --download option is deprecated is now implied. Use --skip-download to avoid downloading")
+        print(
+            "Warning: The --download option is deprecated is now implied. Use --skip-download to avoid downloading"
+        )
     if not args.skip_download:
         download_count = 0
         while True:
-            if args.download_limit != -1 and download_count >= args.download_limit:
+            if (
+                args.download_limit != -1
+                and download_count >= args.download_limit
+            ):
                 break
             missing_downloads = library.find_missing_downloads()
             # make full paths
@@ -120,7 +129,10 @@ def main() -> None:
             vid = missing_downloads[0]
             next_url = vid.url
             next_mp3_path = vid.file_path
-            print(f"\n#######################\n# Downloading missing file {next_url}: {next_mp3_path}\n" "###################")
+            print(
+                f"\n#######################\n# Downloading missing file {next_url}: {next_mp3_path}\n"
+                "###################"
+            )
             yt_dlp_download_mp3(url=next_url, outmp3=next_mp3_path)
             download_count += 1
 
@@ -131,5 +143,7 @@ if __name__ == "__main__":
     sys.argv.append("@silverguru")
     sys.argv.append("tmp")
     sys.argv.append("--limit-scroll-pages")
+    sys.argv.append("1")
+    sys.argv.append("--download-limit")
     sys.argv.append("1")
     main()

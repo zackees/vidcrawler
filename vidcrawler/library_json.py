@@ -39,7 +39,9 @@ class VidEntry:
     @classmethod
     def from_dict(cls, data: dict) -> "VidEntry":
         """Create from dictionary."""
-        return cls(url=data["url"], title=data["title"], file_path=data["file_path"])
+        return cls(
+            url=data["url"], title=data["title"], file_path=data["file_path"]
+        )
 
     @classmethod
     def serialize(cls, data: list["VidEntry"]) -> str:
@@ -85,7 +87,9 @@ def merge_into_library(library_json_path: str, vids: list[YtVid]) -> None:
     for vid in vids:
         title = vid.title
         file_path = os.path.join(f"{title}.mp3")
-        found_entries.append(VidEntry(url=vid.url, title=title, file_path=file_path))
+        found_entries.append(
+            VidEntry(url=vid.url, title=title, file_path=file_path)
+        )
     file_lock = library_json_path + ".lock"
     with FileLock(file_lock):
         existing_entries = load_json(library_json_path)
@@ -100,6 +104,9 @@ class LibraryJson:
 
     def __init__(self, library_json_path: str) -> None:
         self.library_json_path = library_json_path
+        if not os.path.exists(library_json_path):
+            with open(library_json_path, encoding="utf-8", mode="w") as filed:
+                filed.write("[]")
 
     def find_missing_downloads(self) -> list[VidEntry]:
         """Find missing downloads."""
