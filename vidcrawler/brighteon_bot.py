@@ -2,29 +2,40 @@
 Scrapes the brighteon website for video urls and downloads them.
 """
 
+import argparse
 import os
 import sys
 import warnings
 from contextlib import contextmanager
 from typing import Generator
 
+from filelock import FileLock
 from playwright.sync_api import Browser, Page, sync_playwright
 
 from vidcrawler.libary import Library, VidEntry
 
 BASE_URL = "https://www.brighteon.com"
 
+INSTALLED = False
+
 
 def install_playwright() -> None:
     """Install Playwright."""
-    rtn = os.system("playwright install")
-    if rtn != 0:
-        raise OSError("Failed to install Playwright.")
+    install_lock = os.path.join(os.getcwd(), "playwright.lock")
+    with FileLock(install_lock):
+        global INSTALLED  # pylint: disable=global-statement
+        if INSTALLED:
+            return
+        rtn = os.system("playwright install")
+        if rtn != 0:
+            raise OSError("Failed to install Playwright.")
+        INSTALLED = True
 
 
 @contextmanager
 def launch_playwright() -> Generator[tuple[Page, Browser], None, None]:
     """Playwright context manager."""
+    install_playwright()
     with sync_playwright() as context:
         is_github_runner = os.environ.get("GITHUB_ACTIONS") == "true"
         browser = context.chromium.launch(headless=is_github_runner)
@@ -65,7 +76,9 @@ def get_vids(page: Page, channel_url: str, page_num: int) -> list[VidEntry]:
 def update_library(outdir: str, channel_name: str, limit: int = -1) -> Library:
     """Simple test to verify the title of a page."""
     channel_url = f"https://www.brighteon.com/channels/{channel_name}"
-    library_json = os.path.join(outdir, channel_name, "brighteon", "library.json")
+    library_json = os.path.join(
+        outdir, channel_name, "brighteon", "library.json"
+    )
     library = Library(library_json)
     count = 0
     with launch_playwright() as (page, _):
@@ -89,13 +102,45 @@ def update_library(outdir: str, channel_name: str, limit: int = -1) -> Library:
     return library
 
 
-def main(limit=-1) -> int:
+def main() -> int:
+    """Main function."""
+    parser = argparse.ArgumentParser("brighteon-pull")
+    parser.add_argument(
+        "channel",
+        type=str,
+        help="URL slug of the channel, example: hrreport",
+    )
+    parser.add_argument("basedir", type=str, help="Base directory", default=".")
+    parser.add_argument(
+        "--limit-downloads",
+        type=int,
+        default=-1,
+    )
+    parser.add_argument(
+        "--skip-download",
+        action="store_true",
+    )
+    args = parser.parse_args()
+    basedir = args.basedir
+    channel = args.channel
+    download_limit = args.limit_downloads
+    skip_download = args.skip_download
+
+    library = update_library(basedir, channel, limit=-1)
+    if not skip_download:
+        library.download_missing(download_limit)
+    return 0
+
+
+def unit_test(limit=-1) -> int:
     """Run the tests."""
-    install_playwright()
-    library = update_library("tmp", "hrreport", limit=1)
-    library.download_missing(limit)
+    sys.argv.append("hrreport")
+    sys.argv.append("tmp")
+    sys.argv.append("--limit-downloads")
+    sys.argv.append(str(limit))
+    main()
     return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main(1))
+    sys.exit(unit_test(1))

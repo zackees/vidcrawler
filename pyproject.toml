@@ -45,3 +45,4 @@ exclude = '''
 vidcrawler = "vidcrawler.cmd:main"
 vidcrawler_test = "vidcrawler.run_tests:main"
 youtube-pull-channel = "vidcrawler.youtube_pull:main"
+brighteon-pull-channel = "vidcrawler.brighteon_bot:main"
