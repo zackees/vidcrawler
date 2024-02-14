@@ -4,7 +4,7 @@
 import unittest
 
 from vidcrawler.youtube_bot import (
-    YtVid,
+    VidEntry,
     fetch_all_sources,
     fetch_all_vids,
     parse_youtube_videos,
@@ -19,7 +19,7 @@ class YouTubeBotTester(unittest.TestCase):
         print("sources:")
         # for source in sources:
         #    print(f"  {source}")
-        vids: list[YtVid] = parse_youtube_videos(sources)
+        vids: list[VidEntry] = parse_youtube_videos(sources)
         self.assertGreater(len(vids), 0)
         print("vids:")
         for vid in vids:
@@ -27,7 +27,7 @@ class YouTubeBotTester(unittest.TestCase):
 
     def test_fetch_videos(self) -> None:
         # vids = fetch_all_vids(URL_SILVERGURU)
-        sources: list[YtVid] = fetch_all_vids(URL_SILVERGURU, limit=4)
+        sources: list[VidEntry] = fetch_all_vids(URL_SILVERGURU, limit=4)
         print("vids:")
         for vid in sources:
             print(f"  {vid}")

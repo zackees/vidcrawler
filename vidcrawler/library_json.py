@@ -6,8 +6,6 @@ from dataclasses import dataclass
 
 from filelock import FileLock
 
-from vidcrawler.youtube_bot import YtVid
-
 
 @dataclass
 class VidEntry:
@@ -16,6 +14,11 @@ class VidEntry:
     url: str
     title: str
     file_path: str
+
+    def __init__(self, url: str, title: str, file_path: str | None = None) -> None:
+        self.url = url
+        self.title = title
+        self.file_path = file_path or f"{title}.mp3"
 
     # needed for set membership
     def __hash__(self):
@@ -39,9 +42,7 @@ class VidEntry:
     @classmethod
     def from_dict(cls, data: dict) -> "VidEntry":
         """Create from dictionary."""
-        return cls(
-            url=data["url"], title=data["title"], file_path=data["file_path"]
-        )
+        return cls(url=data["url"], title=data["title"], file_path=data["file_path"])
 
     @classmethod
     def serialize(cls, data: list["VidEntry"]) -> str:
@@ -81,15 +82,13 @@ def save_json(file_path: str, data: list[VidEntry]) -> None:
         filed.write(json_out)
 
 
-def merge_into_library(library_json_path: str, vids: list[YtVid]) -> None:
+def merge_into_library(library_json_path: str, vids: list[VidEntry]) -> None:
     """Merge the vids into the library."""
     found_entries: list[VidEntry] = []
     for vid in vids:
         title = vid.title
-        file_path = os.path.join(f"{title}.mp3")
-        found_entries.append(
-            VidEntry(url=vid.url, title=title, file_path=file_path)
-        )
+        file_path = vid.file_path
+        found_entries.append(VidEntry(url=vid.url, title=title, file_path=file_path))
     file_lock = library_json_path + ".lock"
     with FileLock(file_lock):
         existing_entries = load_json(library_json_path)
@@ -120,6 +119,6 @@ class LibraryJson:
         """Save json to file."""
         save_json(self.library_json_path, data)
 
-    def merge(self, vids: list[YtVid]) -> None:
+    def merge(self, vids: list[VidEntry]) -> None:
         """Merge the vids into the library."""
         merge_into_library(self.library_json_path, vids)

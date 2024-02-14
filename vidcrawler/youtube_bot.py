@@ -6,13 +6,11 @@ Test script for opening a youtube channel and getting the latest videos.
 """
 
 import concurrent.futures
-import json
 import os
 import time
 import traceback
 import unicodedata
 import warnings
-from dataclasses import dataclass
 from typing import Any, Callable, Generator
 
 import requests
@@ -21,6 +19,8 @@ from open_webdriver import open_webdriver  # type: ignore
 from selenium.common.exceptions import (
     StaleElementReferenceException as StaleElementException,
 )
+
+from vidcrawler.library_json import VidEntry
 
 IS_GITHUB_RUNNER = os.environ.get("GITHUB_ACTIONS") == "true"
 # Always headless now.
@@ -33,38 +33,6 @@ JS_SCROLL_TO_BOTTOM_WAIT = 1
 URL_BASE = "https://www.youtube.com"
 
 CACHE_OUTER_HTML: dict[str, str] = {}
-
-
-@dataclass
-class YtVid:
-    url: str
-    title: str
-
-    # needed for set membership
-    def __hash__(self):
-        return hash(self.url)
-
-    def __eq__(self, other):
-        return self.url == other.url
-
-    def __repr__(self) -> str:
-        data = self.to_dict()
-        return json.dumps(data)
-
-    def to_dict(self) -> dict:
-        return {"url": self.url, "title": self.title}
-
-    @classmethod
-    def from_dict(cls, data: dict) -> "YtVid":
-        return cls(url=data["url"], title=data["title"])
-
-    @classmethod
-    def serialize(cls, data: list["YtVid"]) -> str:
-        return json.dumps([vid.to_dict() for vid in data])
-
-    @classmethod
-    def deserialize(cls, data: str) -> list["YtVid"]:
-        return [cls.from_dict(vid) for vid in json.loads(data)]
 
 
 def sanitize_filepath(path: str, replacement_char: str = "_") -> str:
@@ -102,9 +70,9 @@ def sanitize_filepath(path: str, replacement_char: str = "_") -> str:
     return path
 
 
-def parse_youtube_videos(div_strs: list[str]) -> list[YtVid]:
+def parse_youtube_videos(div_strs: list[str]) -> list[VidEntry]:
     """Div containing the youtube video, which has a title and an href."""
-    out: list[YtVid] = []
+    out: list[VidEntry] = []
     for div_str in div_strs:
         soup = BeautifulSoup(div_str, "html.parser")
         title_link = soup.find("a", id="video-title-link")
@@ -124,7 +92,7 @@ def parse_youtube_videos(div_strs: list[str]) -> list[YtVid]:
             stack_trace = traceback.format_exc()
             warnings.warn(f"Error, could not scrape video: {err} {stack_trace}")
             continue
-        out.append(YtVid(title=title, url=href))
+        out.append(VidEntry(title=title, url=href))
     return out
 
 
@@ -201,7 +169,7 @@ def test_channel_url(channel_url: str) -> bool:
     return response.status_code == 200
 
 
-def fetch_all_vids(yt_channel_url: str, limit: int = -1) -> list[YtVid]:
+def fetch_all_vids(yt_channel_url: str, limit: int = -1) -> list[VidEntry]:
     """
     Open a web driver and navigate to Google. yt_channel_url should be
     of the form https://www.youtube.com/@silverguru/videos
@@ -209,7 +177,7 @@ def fetch_all_vids(yt_channel_url: str, limit: int = -1) -> list[YtVid]:
     if not test_channel_url(yt_channel_url):
         raise ValueError(f"Invalid channel url: {yt_channel_url}")
     pending_fetches = fetch_all_sources(yt_channel_url=yt_channel_url, limit=limit)
-    list_vids: list[list[YtVid]] = []
+    list_vids: list[list[VidEntry]] = []
     num_workers = max(1, os.cpu_count() or 0)
     with concurrent.futures.ThreadPoolExecutor(max_workers=num_workers) as executor:
         future_to_vid = {}
@@ -219,8 +187,8 @@ def fetch_all_vids(yt_channel_url: str, limit: int = -1) -> list[YtVid]:
         for future in concurrent.futures.as_completed(future_to_vid):
             vids = future.result()
             list_vids.append(vids)
-    unique_vids: set[YtVid] = set()
-    out_vids: list[YtVid] = []
+    unique_vids: set[VidEntry] = set()
+    out_vids: list[VidEntry] = []
     for vids in list_vids:
         for vid in vids:
             if vid not in unique_vids:
