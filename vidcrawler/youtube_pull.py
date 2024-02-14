@@ -7,7 +7,7 @@ Command entry point.
 import argparse
 import os
 
-from vidcrawler.libary import Library, VidEntry
+from vidcrawler.library import Library, VidEntry
 from vidcrawler.youtube_bot import fetch_all_vids
 
 

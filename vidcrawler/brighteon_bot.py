@@ -12,7 +12,7 @@ from typing import Generator
 from filelock import FileLock
 from playwright.sync_api import Browser, Page, sync_playwright
 
-from vidcrawler.libary import Library, VidEntry
+from vidcrawler.library import Library, VidEntry
 
 BASE_URL = "https://www.brighteon.com"
 
