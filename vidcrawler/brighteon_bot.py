@@ -10,7 +10,7 @@ from typing import Generator
 
 from playwright.sync_api import Browser, Page, sync_playwright
 
-from vidcrawler.library_json import LibraryJson, VidEntry
+from vidcrawler.libary import Library, VidEntry
 
 BASE_URL = "https://www.brighteon.com"
 
@@ -45,7 +45,7 @@ def get_vids(page: Page, channel_url: str, page_num: int) -> list[VidEntry]:
     # get all div class="post" objects
     posts = page.query_selector_all("div.post")
     # get the first one
-    urls: list[str] = []
+    urls: list[VidEntry] = []
     for post in posts:
         try:
             link = post.query_selector("a")
@@ -62,23 +62,20 @@ def get_vids(page: Page, channel_url: str, page_num: int) -> list[VidEntry]:
     return urls
 
 
-def update_library(
-    outdir: str, channel_name: str, limit: int = -1
-) -> LibraryJson:
+def update_library(outdir: str, channel_name: str, limit: int = -1) -> Library:
     """Simple test to verify the title of a page."""
     channel_url = f"https://www.brighteon.com/channels/{channel_name}"
-    library_json = os.path.join(
-        outdir, channel_name, "brighteon", "library.json"
-    )
-    library = LibraryJson(library_json)
+    library_json = os.path.join(outdir, channel_name, "brighteon", "library.json")
+    library = Library(library_json)
     count = 0
     with launch_playwright() as (page, _):
         # Determine whether to run headless based on the environment variable
-        urls: list[str] = []
+        urls: list[VidEntry] = []
         page_num = 0
         while True:
-            if limit > -1 and count >= limit:
-                break
+            if limit > -1:
+                if count >= limit:
+                    break
             count += 1
             try:
                 new_urls: list[VidEntry] = get_vids(page, channel_url, page_num)

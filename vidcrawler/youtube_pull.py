@@ -7,7 +7,7 @@ Command entry point.
 import argparse
 import os
 
-from vidcrawler.library_json import LibraryJson, VidEntry
+from vidcrawler.libary import Library, VidEntry
 from vidcrawler.youtube_bot import fetch_all_vids
 
 
@@ -66,7 +66,7 @@ def main() -> None:
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     library_json = os.path.join(output_dir, "library.json")
-    library = LibraryJson(library_json)
+    library = Library(library_json)
     if not args.skip_scan:
         vids: list[VidEntry] = fetch_all_vids(channel_url, limit=limit_scroll_pages)
         library.merge(vids)

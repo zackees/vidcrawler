@@ -20,7 +20,7 @@ from selenium.common.exceptions import (
     StaleElementReferenceException as StaleElementException,
 )
 
-from vidcrawler.library_json import VidEntry
+from vidcrawler.libary import VidEntry
 
 IS_GITHUB_RUNNER = os.environ.get("GITHUB_ACTIONS") == "true"
 # Always headless now.
