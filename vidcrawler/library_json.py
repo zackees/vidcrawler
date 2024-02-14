@@ -2,9 +2,12 @@
 
 import json
 import os
+import subprocess
+import warnings
 from dataclasses import dataclass
 
 from filelock import FileLock
+from static_ffmpeg import add_paths
 
 
 @dataclass
@@ -47,7 +50,8 @@ class VidEntry:
     @classmethod
     def serialize(cls, data: list["VidEntry"]) -> str:
         """Serialize to string."""
-        return json.dumps([vid.to_dict() for vid in data])
+        data = [vid.to_dict() for vid in data]
+        return json.dumps(data, indent=2)
 
     @classmethod
     def deserialize(cls, data: str) -> list["VidEntry"]:
@@ -82,6 +86,32 @@ def save_json(file_path: str, data: list[VidEntry]) -> None:
         filed.write(json_out)
 
 
+def yt_dlp_download_mp3(url: str, outmp3: str) -> None:
+    """Download the youtube video as an mp3."""
+    add_paths()
+    par_dir = os.path.dirname(outmp3)
+    if par_dir:
+        os.makedirs(par_dir, exist_ok=True)
+
+    for _ in range(3):
+        try:
+            cmd_list: list[str] = [
+                "yt-dlp",
+                url,
+                "--extract-audio",
+                "--audio-format",
+                "mp3",
+                "--output",
+                outmp3,
+            ]
+            subprocess.run(cmd_list, check=True)
+            return
+        except subprocess.CalledProcessError as cpe:
+            print(f"Failed to download {url} as mp3: {cpe}")
+            continue
+    warnings.warn(f"Failed all attempts to download {url} as mp3.")
+
+
 def merge_into_library(library_json_path: str, vids: list[VidEntry]) -> None:
     """Merge the vids into the library."""
     found_entries: list[VidEntry] = []
@@ -103,6 +133,10 @@ class LibraryJson:
 
     def __init__(self, library_json_path: str) -> None:
         self.library_json_path = library_json_path
+        self.base_dir = os.path.dirname(library_json_path)
+        pardir = os.path.dirname(library_json_path)
+        if not os.path.exists(pardir):
+            os.makedirs(pardir)
         if not os.path.exists(library_json_path):
             with open(library_json_path, encoding="utf-8", mode="w") as filed:
                 filed.write("[]")
@@ -122,3 +156,20 @@ class LibraryJson:
     def merge(self, vids: list[VidEntry]) -> None:
         """Merge the vids into the library."""
         merge_into_library(self.library_json_path, vids)
+
+    def download_missing(self, download_limit: int) -> None:
+        """Download the missing files."""
+        download_count = 0
+        while True:
+            if download_limit != -1 and download_count >= download_limit:
+                break
+            missing_downloads = self.find_missing_downloads()
+            # make full paths
+            if not missing_downloads:
+                break
+            vid = missing_downloads[0]
+            next_url = vid.url
+            next_mp3_path = vid.file_path
+            print(f"\n#######################\n# Downloading missing file {next_url}: {next_mp3_path}\n" "###################")
+            yt_dlp_download_mp3(url=next_url, outmp3=next_mp3_path)
+            download_count += 1

@@ -6,10 +6,6 @@ Command entry point.
 
 import argparse
 import os
-import subprocess
-import warnings
-
-from static_ffmpeg import add_paths
 
 from vidcrawler.library_json import LibraryJson, VidEntry
 from vidcrawler.youtube_bot import fetch_all_vids
@@ -61,32 +57,6 @@ def to_channel_url(channel: str) -> str:
     return out
 
 
-def yt_dlp_download_mp3(url: str, outmp3: str) -> None:
-    """Download the youtube video as an mp3."""
-    add_paths()
-    par_dir = os.path.dirname(outmp3)
-    if par_dir:
-        os.makedirs(par_dir, exist_ok=True)
-
-    for _ in range(3):
-        try:
-            cmd_list: list[str] = [
-                "yt-dlp",
-                url,
-                "--extract-audio",
-                "--audio-format",
-                "mp3",
-                "--output",
-                outmp3,
-            ]
-            subprocess.run(cmd_list, check=True)
-            return
-        except subprocess.CalledProcessError as cpe:
-            print(f"Failed to download {url} as mp3: {cpe}")
-            continue
-    warnings.warn(f"Failed all attempts to download {url} as mp3.")
-
-
 def main() -> None:
     """Main function."""
     args = parse_args()
@@ -107,22 +77,7 @@ def main() -> None:
     if args.download:
         print("Warning: The --download option is deprecated is now implied. Use --skip-download to avoid downloading")
     if not args.skip_download:
-        download_count = 0
-        while True:
-            if args.download_limit != -1 and download_count >= args.download_limit:
-                break
-            missing_downloads = library.find_missing_downloads()
-            # make full paths
-            for vid in missing_downloads:
-                vid.file_path = os.path.join(output_dir, vid.file_path)
-            if not missing_downloads:
-                break
-            vid = missing_downloads[0]
-            next_url = vid.url
-            next_mp3_path = vid.file_path
-            print(f"\n#######################\n# Downloading missing file {next_url}: {next_mp3_path}\n" "###################")
-            yt_dlp_download_mp3(url=next_url, outmp3=next_mp3_path)
-            download_count += 1
+        library.download_missing(args.download_limit)
 
 
 if __name__ == "__main__":

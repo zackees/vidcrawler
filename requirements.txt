@@ -13,3 +13,4 @@ filelock
 yt-dlp>=2023.3.4
 static-ffmpeg
 pytest-playwright
+ytdlp-brighteon>=2023.10.3

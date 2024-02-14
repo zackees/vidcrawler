@@ -10,6 +10,10 @@ from typing import Generator
 
 from playwright.sync_api import Browser, Page, sync_playwright
 
+from vidcrawler.library_json import LibraryJson, VidEntry
+
+BASE_URL = "https://www.brighteon.com"
+
 
 def install_playwright() -> None:
     """Install Playwright."""
@@ -32,7 +36,7 @@ def launch_playwright() -> Generator[tuple[Page, Browser], None, None]:
             browser.close()
 
 
-def get_urls(page: Page, channel_url: str, page_num: int) -> list[str]:
+def get_vids(page: Page, channel_url: str, page_num: int) -> list[VidEntry]:
     """Get the urls from a channel page. Throws exception when page not found."""
     # From: https://www.brighteon.com/channels/hrreport
     # To: https://www.brighteon.com/channels/hrreport/videos?page=1
@@ -48,36 +52,53 @@ def get_urls(page: Page, channel_url: str, page_num: int) -> list[str]:
             assert link
             href = link.get_attribute("href")
             assert href
-            urls.append(href)
+            title = post.query_selector("div.title")
+            assert title
+            title_text = title.inner_text().strip()
+            href = BASE_URL + href
+            urls.append(VidEntry(title=title_text, url=href))
         except Exception as e:  # pylint: disable=broad-except
             warnings.warn(f"Failed to get url: {e}")
     return urls
 
 
-def unit_test() -> None:
+def update_library(
+    outdir: str, channel_name: str, limit: int = -1
+) -> LibraryJson:
     """Simple test to verify the title of a page."""
-    chanel_url = "https://www.brighteon.com/channels/hrreport"
+    channel_url = f"https://www.brighteon.com/channels/{channel_name}"
+    library_json = os.path.join(
+        outdir, channel_name, "brighteon", "library.json"
+    )
+    library = LibraryJson(library_json)
+    count = 0
     with launch_playwright() as (page, _):
         # Determine whether to run headless based on the environment variable
         urls: list[str] = []
         page_num = 0
         while True:
+            if limit > -1 and count >= limit:
+                break
+            count += 1
             try:
-                new_urls: list[str] = get_urls(page, chanel_url, page_num)
+                new_urls: list[VidEntry] = get_vids(page, channel_url, page_num)
                 page_num += 1
                 urls += new_urls
             except Exception as e:  # pylint: disable=broad-except
                 warnings.warn(f"Failed to get urls: {e}")
                 break
-        print(f"Got {len(urls)} urls.")
+    print(f"Got {len(urls)} urls.")
+    library.merge(urls)
+    return library
 
 
-def main() -> int:
+def main(limit=-1) -> int:
     """Run the tests."""
     install_playwright()
-    unit_test()
+    library = update_library("tmp", "hrreport", limit=1)
+    library.download_missing(limit)
     return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main(1))
