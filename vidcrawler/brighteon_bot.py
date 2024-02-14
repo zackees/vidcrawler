@@ -76,9 +76,7 @@ def get_vids(page: Page, channel_url: str, page_num: int) -> list[VidEntry]:
 def update_library(outdir: str, channel_name: str, limit: int = -1) -> Library:
     """Simple test to verify the title of a page."""
     channel_url = f"https://www.brighteon.com/channels/{channel_name}"
-    library_json = os.path.join(
-        outdir, channel_name, "brighteon", "library.json"
-    )
+    library_json = os.path.join(outdir, channel_name, "brighteon", "library.json")
     library = Library(library_json)
     count = 0
     with launch_playwright() as (page, _):

@@ -18,9 +18,7 @@ class VidEntry:
     title: str
     file_path: str
 
-    def __init__(
-        self, url: str, title: str, file_path: str | None = None
-    ) -> None:
+    def __init__(self, url: str, title: str, file_path: str | None = None) -> None:
         self.url = url
         self.title = title
         self.file_path = file_path or f"{title}.mp3"
@@ -47,9 +45,7 @@ class VidEntry:
     @classmethod
     def from_dict(cls, data: dict) -> "VidEntry":
         """Create from dictionary."""
-        return cls(
-            url=data["url"], title=data["title"], file_path=data["file_path"]
-        )
+        return cls(url=data["url"], title=data["title"], file_path=data["file_path"])
 
     @classmethod
     def serialize(cls, data: list["VidEntry"]) -> str:
@@ -122,9 +118,7 @@ def merge_into_library(library_json_path: str, vids: list[VidEntry]) -> None:
     for vid in vids:
         title = vid.title
         file_path = vid.file_path
-        found_entries.append(
-            VidEntry(url=vid.url, title=title, file_path=file_path)
-        )
+        found_entries.append(VidEntry(url=vid.url, title=title, file_path=file_path))
     file_lock = library_json_path + ".lock"
     with FileLock(file_lock):
         existing_entries = load_json(library_json_path)
@@ -176,9 +170,6 @@ class Library:
             vid = missing_downloads[0]
             next_url = vid.url
             next_mp3_path = os.path.join(self.base_dir, vid.file_path)
-            print(
-                f"\n#######################\n# Downloading missing file {next_url}: {next_mp3_path}\n"
-                "###################"
-            )
+            print(f"\n#######################\n# Downloading missing file {next_url}: {next_mp3_path}\n" "###################")
             yt_dlp_download_mp3(url=next_url, outmp3=next_mp3_path)
             download_count += 1
