@@ -8,6 +8,7 @@ import argparse
 import json
 import os
 import subprocess
+import warnings
 
 from filelock import FileLock
 from static_ffmpeg import add_paths
@@ -86,16 +87,24 @@ def yt_dlp_download_mp3(url: str, outmp3: str) -> None:
     par_dir = os.path.dirname(outmp3)
     if par_dir:
         os.makedirs(par_dir, exist_ok=True)
-    cmd_list: list[str] = [
-        "yt-dlp",
-        url,
-        "--extract-audio",
-        "--audio-format",
-        "mp3",
-        "--output",
-        outmp3,
-    ]
-    subprocess.run(cmd_list, check=True)
+
+    for _ in range(3):
+        try:
+            cmd_list: list[str] = [
+                "yt-dlp",
+                url,
+                "--extract-audio",
+                "--audio-format",
+                "mp3",
+                "--output",
+                outmp3,
+            ]
+            subprocess.run(cmd_list, check=True)
+            return
+        except subprocess.CalledProcessError as cpe:
+            print(f"Failed to download {url} as mp3: {cpe}")
+            continue
+    warnings.warn(f"Failed all attempts to download {url} as mp3.")
 
 
 def find_missing_downloads(library_json_path: str) -> list[dict]:
