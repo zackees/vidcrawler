@@ -5,14 +5,13 @@ Command entry point.
 # pylint: disable=consider-using-f-string
 
 import argparse
-import json
 import os
 import subprocess
 import warnings
 
-from filelock import FileLock
 from static_ffmpeg import add_paths
 
+from vidcrawler.library_json import LibraryJson
 from vidcrawler.youtube_bot import YtVid, fetch_all_vids
 
 
@@ -56,25 +55,6 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def load_json(file_path: str) -> list[dict]:
-    """Load json from file if it exists."""
-    if not os.path.exists(file_path):
-        return []
-    with open(file_path, encoding="utf-8", mode="r") as filed:
-        # data = json.load(filed)
-        # return data
-        json_str = filed.read()
-    json_obj = json.loads(json_str)
-    return json_obj
-
-
-def save_json(file_path: str, data: list[dict]) -> None:
-    """Save json to file."""
-    out_str = json.dumps(data, indent=2)
-    with open(file_path, encoding="utf-8", mode="w") as filed:
-        filed.write(out_str)
-
-
 def to_channel_url(channel: str) -> str:
     """Convert channel name to channel URL."""
     out = f"https://www.youtube.com/{channel}/videos"
@@ -107,20 +87,6 @@ def yt_dlp_download_mp3(url: str, outmp3: str) -> None:
     warnings.warn(f"Failed all attempts to download {url} as mp3.")
 
 
-def find_missing_downloads(library_json_path: str) -> list[dict]:
-    """Find missing downloads."""
-    out: list[dict] = []
-    with open(library_json_path, encoding="utf-8", mode="r") as filed:
-        data = json.load(filed)
-    for vid in data:
-        title = vid["title"]
-        file_path = os.path.join(os.path.dirname(library_json_path), f"{title}.mp3")
-        if not os.path.exists(file_path):
-            vid["file_path"] = file_path
-            out.append(vid)
-    return out
-
-
 def main() -> None:
     """Main function."""
     args = parse_args()
@@ -130,22 +96,14 @@ def main() -> None:
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     library_json = os.path.join(output_dir, "library.json")
-    # load the json data if it already exists
-    file_lock = library_json + ".lock"
+    library = LibraryJson(library_json)
     if not args.skip_scan:
-        with FileLock(file_lock):
-            loaded_data = load_json(library_json)
-            vids: list[YtVid] = fetch_all_vids(channel_url, limit=limit_scroll_pages)
-            fetched_data = [vid.to_dict() for vid in vids]
-            new_data = list(loaded_data)
-            for vid in fetched_data:
-                if vid not in loaded_data:
-                    new_data.append(vid)
-            save_json(library_json, new_data)
+        vids: list[YtVid] = fetch_all_vids(channel_url, limit=limit_scroll_pages)
+        library.merge(vids)
         print(f"Updated {library_json}")
-
-    if not os.path.exists(library_json):
-        raise FileNotFoundError(f"{library_json} does not exist. Cannot skip scan.")
+    else:
+        if not os.path.exists(library_json):
+            raise FileNotFoundError(f"{library_json} does not exist. Cannot skip scan.")
     if args.download:
         print("Warning: The --download option is deprecated is now implied. Use --skip-download to avoid downloading")
     if not args.skip_download:
@@ -153,12 +111,15 @@ def main() -> None:
         while True:
             if args.download_limit != -1 and download_count >= args.download_limit:
                 break
-            missing_downloads = find_missing_downloads(library_json)
+            missing_downloads = library.find_missing_downloads()
+            # make full paths
+            for vid in missing_downloads:
+                vid.file_path = os.path.join(output_dir, vid.file_path)
             if not missing_downloads:
                 break
             vid = missing_downloads[0]
-            next_url = vid["url"]
-            next_mp3_path = vid["file_path"]
+            next_url = vid.url
+            next_mp3_path = vid.file_path
             print(f"\n#######################\n# Downloading missing file {next_url}: {next_mp3_path}\n" "###################")
             yt_dlp_download_mp3(url=next_url, outmp3=next_mp3_path)
             download_count += 1

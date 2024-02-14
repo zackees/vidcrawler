@@ -54,6 +54,18 @@ class YtVid:
     def to_dict(self) -> dict:
         return {"url": self.url, "title": self.title}
 
+    @classmethod
+    def from_dict(cls, data: dict) -> "YtVid":
+        return cls(url=data["url"], title=data["title"])
+
+    @classmethod
+    def serialize(cls, data: list["YtVid"]) -> str:
+        return json.dumps([vid.to_dict() for vid in data])
+
+    @classmethod
+    def deserialize(cls, data: str) -> list["YtVid"]:
+        return [cls.from_dict(vid) for vid in json.loads(data)]
+
 
 def sanitize_filepath(path: str, replacement_char: str = "_") -> str:
     """
