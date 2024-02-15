@@ -32,9 +32,12 @@ def install_playwright() -> None:
         INSTALLED = True
 
 
+
 @contextmanager
 def launch_playwright() -> Generator[tuple[Page, Browser], None, None]:
-    """Playwright context manager."""
+    """
+    Launches a playwright browser. Each browser is only safe to use in a single thread.
+    """
     install_playwright()
     with sync_playwright() as context:
         headless = HEADLESS or os.environ.get("GITHUB_ACTIONS") == "true"

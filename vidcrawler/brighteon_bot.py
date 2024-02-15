@@ -86,7 +86,7 @@ def _update_library(outdir: str, channel_name: str, full_scan: bool, limit: int 
 
 def main() -> int:
     """Main function."""
-    parser = argparse.ArgumentParser("brighteon-pull-channel pulls a channel from brighteon.com.")
+    parser = argparse.ArgumentParser()
     parser.add_argument(
         "--channel-name",
         type=str,
