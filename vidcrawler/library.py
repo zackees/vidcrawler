@@ -2,6 +2,7 @@
 
 import json
 import os
+import re
 import shutil
 import subprocess
 import tempfile
@@ -10,6 +11,41 @@ from dataclasses import dataclass
 
 from filelock import FileLock
 from static_ffmpeg import add_paths
+
+
+def clean_filename(title):
+    """
+    Cleans a string to make it a valid directory name by removing emojis,
+    special characters, and other non-ASCII characters, in addition to the
+    previously specified invalid filename characters.
+
+    Args:
+    - title (str): The title to be converted into a directory name.
+
+    Returns:
+    - str: A cleaned-up string suitable for use as a directory name.
+    """
+    # Remove emojis and special characters by allowing only a specific set of characters
+    # This regex keeps letters, numbers, spaces, underscores, and hyphens.
+    # You can adjust the regex as needed to include any additional characters.
+    title = re.sub(r'[^\w\s\-_]', '', title)
+    
+    # Replace spaces or consecutive dashes with a single underscore
+    title = re.sub(r'\s+|-+', '_', title)
+    
+    # Remove leading or trailing whitespace (after replacing spaces with underscores, this might be redundant)
+    title = title.strip()
+    
+    # Optional: Convert to lowercase to avoid issues with case-sensitive file systems
+    # title = title.lower()
+    
+    # Optional: Trim the title to a maximum length (e.g., 255 characters)
+    max_length = 255
+    if len(title) > max_length:
+        title = title[:max_length]
+    
+    return title
+
 
 
 @dataclass
@@ -23,7 +59,7 @@ class VidEntry:
     def __init__(self, url: str, title: str, file_path: str | None = None) -> None:
         self.url = url
         self.title = title
-        self.file_path = file_path or f"{title}.mp3"
+        self.file_path = file_path or clean_filename(f"{title}.mp3")
 
     # needed for set membership
     def __hash__(self):
@@ -47,7 +83,8 @@ class VidEntry:
     @classmethod
     def from_dict(cls, data: dict) -> "VidEntry":
         """Create from dictionary."""
-        return cls(url=data["url"], title=data["title"], file_path=data["file_path"])
+        filepath = clean_filename(data.get("file_path"))
+        return cls(url=data["url"], title=data["title"], file_path=filepath)
 
     @classmethod
     def serialize(cls, data: list["VidEntry"]) -> str:
