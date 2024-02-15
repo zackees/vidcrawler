@@ -13,39 +13,44 @@ from filelock import FileLock
 from static_ffmpeg import add_paths
 
 
-def clean_filename(title):
+def clean_filename(filename: str) -> str:
     """
     Cleans a string to make it a valid directory name by removing emojis,
     special characters, and other non-ASCII characters, in addition to the
-    previously specified invalid filename characters.
+    previously specified invalid filename characters, while preserving the file extension.
 
     Args:
-    - title (str): The title to be converted into a directory name.
+    - filename (str): The filename to be cleaned.
 
     Returns:
-    - str: A cleaned-up string suitable for use as a directory name.
+    - str: A cleaned-up string suitable for use as a filename.
     """
+    # Split the filename into name and extension
+    name_part, _, extension = filename.rpartition(".")
+
     # Remove emojis and special characters by allowing only a specific set of characters
     # This regex keeps letters, numbers, spaces, underscores, and hyphens.
     # You can adjust the regex as needed to include any additional characters.
-    title = re.sub(r'[^\w\s\-_]', '', title)
-    
+    cleaned_name = re.sub(r"[^\w\s\-_]", "", name_part)
+
     # Replace spaces or consecutive dashes with a single underscore
-    title = re.sub(r'\s+|-+', '_', title)
-    
+    cleaned_name = re.sub(r"\s+|-+", "_", cleaned_name)
+
     # Remove leading or trailing whitespace (after replacing spaces with underscores, this might be redundant)
-    title = title.strip()
-    
+    cleaned_name = cleaned_name.strip()
+
     # Optional: Convert to lowercase to avoid issues with case-sensitive file systems
-    # title = title.lower()
-    
+    # cleaned_name = cleaned_name.lower()
+
     # Optional: Trim the title to a maximum length (e.g., 255 characters)
     max_length = 255
-    if len(title) > max_length:
-        title = title[:max_length]
-    
-    return title
+    if len(cleaned_name) > max_length:
+        cleaned_name = cleaned_name[:max_length]
 
+    # Reattach the extension only if it was present
+    if extension:
+        return f"{cleaned_name}.{extension}"
+    return cleaned_name
 
 
 @dataclass
@@ -83,7 +88,9 @@ class VidEntry:
     @classmethod
     def from_dict(cls, data: dict) -> "VidEntry":
         """Create from dictionary."""
-        filepath = clean_filename(data.get("file_path"))
+        filepath = data.get("file_path")
+        assert filepath is not None
+        filepath = clean_filename(filepath)
         return cls(url=data["url"], title=data["title"], file_path=filepath)
 
     @classmethod

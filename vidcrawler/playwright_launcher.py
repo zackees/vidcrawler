@@ -32,7 +32,6 @@ def install_playwright() -> None:
         INSTALLED = True
 
 
-
 @contextmanager
 def launch_playwright() -> Generator[tuple[Page, Browser], None, None]:
     """
