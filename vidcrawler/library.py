@@ -2,7 +2,9 @@
 
 import json
 import os
+import shutil
 import subprocess
+import tempfile
 import warnings
 from dataclasses import dataclass
 
@@ -61,13 +63,14 @@ class VidEntry:
 
 def find_missing_downloads(library_json_path: str) -> list[VidEntry]:
     """Find missing downloads."""
+    pardir = os.path.dirname(library_json_path)
     out: list[VidEntry] = []
     lock = library_json_path + ".lock"
     with FileLock(lock):
         data = load_json(library_json_path)
         for vid in data:
             file_path = vid.file_path
-            if not os.path.exists(file_path):
+            if not os.path.exists(os.path.join(pardir, file_path)):
                 out.append(vid)
     return out
 
@@ -93,23 +96,26 @@ def yt_dlp_download_mp3(url: str, outmp3: str) -> None:
     if par_dir:
         os.makedirs(par_dir, exist_ok=True)
 
-    for _ in range(3):
-        try:
-            cmd_list: list[str] = [
-                "yt-dlp",
-                url,
-                "--extract-audio",
-                "--audio-format",
-                "mp3",
-                "--output",
-                outmp3,
-            ]
-            subprocess.run(cmd_list, check=True)
-            return
-        except subprocess.CalledProcessError as cpe:
-            print(f"Failed to download {url} as mp3: {cpe}")
-            continue
-    warnings.warn(f"Failed all attempts to download {url} as mp3.")
+    with tempfile.TemporaryDirectory() as temp_dir:
+        temp_file = os.path.join(temp_dir, "temp.mp3")
+        for _ in range(3):
+            try:
+                cmd_list: list[str] = [
+                    "yt-dlp",
+                    url,
+                    "--extract-audio",
+                    "--audio-format",
+                    "mp3",
+                    "--output",
+                    temp_file,
+                ]
+                subprocess.run(cmd_list, check=True)
+                shutil.copy(temp_file, outmp3)
+                return
+            except subprocess.CalledProcessError as cpe:
+                print(f"Failed to download {url} as mp3: {cpe}")
+                continue
+        warnings.warn(f"Failed all attempts to download {url} as mp3.")
 
 
 def merge_into_library(library_json_path: str, vids: list[VidEntry]) -> None:
