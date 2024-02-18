@@ -89,7 +89,8 @@ class VidEntry:
     def from_dict(cls, data: dict) -> "VidEntry":
         """Create from dictionary."""
         filepath = data.get("file_path")
-        assert filepath is not None
+        if filepath is None:
+            filepath = clean_filename(data["title"])
         filepath = clean_filename(filepath)
         return cls(url=data["url"], title=data["title"], file_path=filepath)
 
@@ -102,7 +103,19 @@ class VidEntry:
     @classmethod
     def deserialize(cls, data: str) -> list["VidEntry"]:
         """Deserialize from string."""
-        return [cls.from_dict(vid) for vid in json.loads(data)]
+        # return [cls.from_dict(vid) for vid in json.loads(data)]
+        out: list[VidEntry] = []
+        try:
+            for vid in json.loads(data):
+                try:
+                    out.append(cls.from_dict(vid))
+                except KeyboardInterrupt as e:
+                    raise e
+                except Exception as e:  # pylint: disable=broad-except
+                    print(f"Failed to deserialize {vid}: {e}")
+        except Exception as e:  # pylint: disable=broad-except
+            print(f"Failed to deserialize {data}: {e}")
+        return out
 
 
 def find_missing_downloads(library_json_path: str) -> list[VidEntry]:
