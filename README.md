@@ -115,6 +115,7 @@ This new command will a channel and all of it's files as mp3s. Great for transcr
 ```
 
 # Releases
+  * 1.0.16: Make the library downloading more robust.
   * 1.0.15: Improve cleaning filepaths for brighteon_bot
   * 1.0.13: New `brighteon-pull-channel` command
   * 1.0.11: Improves `youtube-pull-channel`
