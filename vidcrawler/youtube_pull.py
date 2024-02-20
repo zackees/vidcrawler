@@ -48,6 +48,11 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Skip the update of the library.json file",
     )
+    parser.add_argument(
+        "--yt-dlp-uses-docker",
+        action="store_true",
+        help="Use docker to run yt-dlp",
+    )
     return parser.parse_args()
 
 
@@ -60,6 +65,8 @@ def to_channel_url(channel: str) -> str:
 def main() -> None:
     """Main function."""
     args = parse_args()
+    if args.yt_dlp_uses_docker:
+        os.environ["USE_DOCKER_YT_DLP"] = "1"
     channel_url = to_channel_url(args.channel)
     output_dir = os.path.join(args.basedir, args.channel, "youtube")
     limit_scroll_pages = args.limit_scroll_pages

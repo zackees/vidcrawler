@@ -3,14 +3,11 @@
 import json
 import os
 import re
-import shutil
-import subprocess
-import tempfile
-import warnings
 from dataclasses import dataclass
 
 from filelock import FileLock
-from static_ffmpeg import add_paths
+
+from vidcrawler.downloadmp3 import download_mp3
 
 
 def clean_filename(filename: str) -> str:
@@ -25,6 +22,10 @@ def clean_filename(filename: str) -> str:
     Returns:
     - str: A cleaned-up string suitable for use as a filename.
     """
+    # strip out any leading or trailing whitespace
+    filename = filename.strip()
+    # strip out leading and trailing periods
+    filename = filename.strip(".")
     # Split the filename into name and extension
     name_part, _, extension = filename.rpartition(".")
 
@@ -146,35 +147,6 @@ def save_json(file_path: str, data: list[VidEntry]) -> None:
         filed.write(json_out)
 
 
-def yt_dlp_download_mp3(url: str, outmp3: str) -> None:
-    """Download the youtube video as an mp3."""
-    add_paths()
-    par_dir = os.path.dirname(outmp3)
-    if par_dir:
-        os.makedirs(par_dir, exist_ok=True)
-
-    with tempfile.TemporaryDirectory() as temp_dir:
-        temp_file = os.path.join(temp_dir, "temp.mp3")
-        for _ in range(3):
-            try:
-                cmd_list: list[str] = [
-                    "yt-dlp",
-                    url,
-                    "--extract-audio",
-                    "--audio-format",
-                    "mp3",
-                    "--output",
-                    temp_file,
-                ]
-                subprocess.run(cmd_list, check=True)
-                shutil.copy(temp_file, outmp3)
-                return
-            except subprocess.CalledProcessError as cpe:
-                print(f"Failed to download {url} as mp3: {cpe}")
-                continue
-        warnings.warn(f"Failed all attempts to download {url} as mp3.")
-
-
 def merge_into_library(library_json_path: str, vids: list[VidEntry]) -> None:
     """Merge the vids into the library."""
     found_entries: list[VidEntry] = []
@@ -234,5 +206,5 @@ class Library:
             next_url = vid.url
             next_mp3_path = os.path.join(self.base_dir, vid.file_path)
             print(f"\n#######################\n# Downloading missing file {next_url}: {next_mp3_path}\n" "###################")
-            yt_dlp_download_mp3(url=next_url, outmp3=next_mp3_path)
+            download_mp3(url=next_url, outmp3=next_mp3_path)
             download_count += 1

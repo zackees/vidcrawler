@@ -103,10 +103,17 @@ def main() -> int:
         "--skip-download",
         action="store_true",
     )
+    parser.add_argument(
+        "--yt-dlp-uses-docker",
+        action="store_true",
+        help="Use docker to run yt-dlp",
+    )
     set_headless(True)
     # full-scan
     parser.add_argument("--full-scan", action="store_true", help="Scan the entire channel, not just the new videos.")
     args = parser.parse_args()
+    if args.yt_dlp_uses_docker:
+        os.environ["USE_DOCKER_YT_DLP"] = "1"
     outdir = args.output
     channel = args.channel_name
     download_limit = args.limit_downloads
@@ -125,6 +132,7 @@ def unit_test(limit=-1) -> int:
     sys.argv.append("hrreport")
     sys.argv.append("--output")
     sys.argv.append("tmp2")
+    sys.argv.append("--yt-dlp-uses-docker")
     sys.argv.append("--limit-downloads")
     sys.argv.append(str(limit))
     main()
