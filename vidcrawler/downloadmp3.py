@@ -48,19 +48,13 @@ def docker_yt_dlp_download_mp3(url: str, outmp3: str) -> None:
     dockerfile = os.path.abspath(dockerfile)
     assert os.path.exists(dockerfile), f"dockerfile {dockerfile} does not exist"
     with tempfile.TemporaryDirectory() as temp_dir:
-        # working_dir = here
         cmd_args = [url, "--extract-audio", "--audio-format", "mp3", "--output", "/host_dir/temp.mp3", "--update", "--no-geo-bypass"]
-        # def docker_run(
-        #  name: str, dockerfile_or_url: str, cwd: Path, cmd_list: list[str]
-        # ) -> int:
-        # docker_run(dockerfile, image_name, container_name, host_volume, container_volume, cmd_args, host_volume)\
         docker_run(name="yt-dlp", dockerfile_or_url=dockerfile, cwd=temp_dir, cmd_list=cmd_args)
         shutil.copy(os.path.join(temp_dir, "temp.mp3"), outmp3)
 
 
 def download_mp3(url: str, outmp3: str) -> None:
     """Download the youtube video as an mp3."""
-    # return yt_dlp_download_mp3(url, outmp3)
     docker_yt_dlp = os.environ.get("USE_DOCKER_YT_DLP", "0") == "1"
     if docker_yt_dlp:
         return docker_yt_dlp_download_mp3(url, outmp3)
