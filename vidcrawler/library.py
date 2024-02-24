@@ -74,7 +74,10 @@ class VidEntry:
     def __init__(self, url: str, title: str, file_path: str | None = None) -> None:
         self.url = url
         self.title = title
-        self.file_path = clean_filename(file_path) or clean_filename(f"{title}.mp3")
+        if file_path is None:
+            self.file_path = clean_filename(f"{title}.mp3")
+        else:
+            self.file_path = clean_filename(file_path)
 
     # needed for set membership
     def __hash__(self):
