@@ -37,6 +37,15 @@ def clean_filename(filename: str) -> str:
     # Replace spaces or consecutive dashes with a single underscore
     cleaned_name = re.sub(r"\s+|-+", "_", cleaned_name)
 
+    # replace commas with underscores
+    cleaned_name = cleaned_name.replace(",", "_")
+
+    # Replace multiple underscores with a single underscore
+    cleaned_name = re.sub(r"_+", "_", cleaned_name)
+
+    # Replace leading or trailing underscores with an empty string
+    cleaned_name = cleaned_name.strip("_")
+
     # Remove leading or trailing whitespace (after replacing spaces with underscores, this might be redundant)
     cleaned_name = cleaned_name.strip()
 
@@ -65,7 +74,7 @@ class VidEntry:
     def __init__(self, url: str, title: str, file_path: str | None = None) -> None:
         self.url = url
         self.title = title
-        self.file_path = file_path or clean_filename(f"{title}.mp3")
+        self.file_path = clean_filename(file_path) or clean_filename(f"{title}.mp3")
 
     # needed for set membership
     def __hash__(self):
