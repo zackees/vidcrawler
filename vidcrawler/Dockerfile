@@ -3,7 +3,7 @@ FROM python:3.10
 
 # Install yt-dlp dependencies and yt-dlp itself
 # Adding necessary packages including ffmpeg
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --fix-missing \
     ffmpeg \
     dos2unix \
     && rm -rf /var/lib/apt/lists/* \

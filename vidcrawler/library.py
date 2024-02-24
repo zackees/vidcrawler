@@ -182,8 +182,8 @@ class Library:
         self.library_json_path = library_json_path
         self.base_dir = os.path.dirname(library_json_path)
         pardir = os.path.dirname(library_json_path)
-        if not os.path.exists(pardir):
-            os.makedirs(pardir)
+        if pardir and not os.path.exists(pardir):
+            os.makedirs(pardir, exist_ok=True)
         if not os.path.exists(library_json_path):
             with open(library_json_path, encoding="utf-8", mode="w") as filed:
                 filed.write("[]")
