@@ -3,6 +3,7 @@
 import json
 import os
 import re
+import warnings
 from dataclasses import dataclass
 
 from filelock import FileLock
@@ -70,14 +71,16 @@ class VidEntry:
     url: str
     title: str
     file_path: str
+    error: bool = False
 
-    def __init__(self, url: str, title: str, file_path: str | None = None) -> None:
+    def __init__(self, url: str, title: str, file_path: str | None = None, error=False) -> None:
         self.url = url
         self.title = title
         if file_path is None:
             self.file_path = clean_filename(f"{title}.mp3")
         else:
             self.file_path = clean_filename(file_path)
+        self.error = error
 
     # needed for set membership
     def __hash__(self):
@@ -96,6 +99,7 @@ class VidEntry:
             "url": self.url,
             "title": self.title,
             "file_path": self.file_path,
+            "error": self.error,
         }
 
     @classmethod
@@ -105,7 +109,8 @@ class VidEntry:
         if filepath is None:
             filepath = clean_filename(data["title"])
         filepath = clean_filename(filepath)
-        return cls(url=data["url"], title=data["title"], file_path=filepath)
+        error = data.get("error", False)
+        return VidEntry(url=data["url"], title=data["title"], file_path=filepath, error=error)
 
     @classmethod
     def serialize(cls, data: list["VidEntry"]) -> str:
@@ -141,7 +146,11 @@ def find_missing_downloads(library_json_path: str) -> list[VidEntry]:
         for vid in data:
             file_path = vid.file_path
             if not os.path.exists(os.path.join(pardir, file_path)):
-                out.append(vid)
+                # if error
+                if not vid.error:
+                    out.append(vid)
+                else:
+                    warnings.warn(f"Skipping {vid.url} because it is marked as an error.")
     return out
 
 
@@ -218,5 +227,15 @@ class Library:
             next_url = vid.url
             next_mp3_path = os.path.join(self.base_dir, vid.file_path)
             print(f"\n#######################\n# Downloading missing file {next_url}: {next_mp3_path}\n" "###################")
-            download_mp3(url=next_url, outmp3=next_mp3_path)
+            try:
+                download_mp3(url=next_url, outmp3=next_mp3_path)
+            except Exception as e:  # pylint: disable=broad-except
+                print(f"Error downloading {next_url}: {e}")
+                self.mark_error(vid)
             download_count += 1
+
+    def mark_error(self, vid: VidEntry) -> None:
+        """Mark the vid as an error."""
+        vid.error = True
+        self.merge([vid])
+        print(f"Marked {vid.url} as an error.")

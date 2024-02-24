@@ -153,3 +153,5 @@ vidcrawler/.wdm/
 vidcrawler/testing/.wdm
 .aider*
 youtube_output/
+!.aider.conf.yml
+!.aiderignore
