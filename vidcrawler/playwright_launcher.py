@@ -33,14 +33,15 @@ def install_playwright() -> None:
 
 
 @contextmanager
-def launch_playwright() -> Generator[tuple[Page, Browser], None, None]:
+def launch_playwright(timeout_seconds: float = 300) -> Generator[tuple[Page, Browser], None, None]:
     """
     Launches a playwright browser. Each browser is only safe to use in a single thread.
     """
     install_playwright()
     with sync_playwright() as context:
+        # add timeout to context
         headless = HEADLESS or os.environ.get("GITHUB_ACTIONS") == "true"
-        browser = context.chromium.launch(headless=headless)
+        browser = context.chromium.launch(headless=headless, timeout=timeout_seconds * 1000)
         page = browser.new_page()
         try:
             yield (page, browser)

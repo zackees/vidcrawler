@@ -21,33 +21,45 @@ INSTALLED = False
 
 def _fetch_vid_infos(page: Page, channel_url: str, page_num: int) -> list[VidEntry]:
     """Get the urls from a channel page. Throws exception when page not found."""
-    # From: https://www.brighteon.com/channels/hrreport
-    # To: https://www.brighteon.com/channels/hrreport/videos?page=1
-    url = f"{channel_url}/videos?page={page_num}"
-    print(f"Fetching video list from {url}")
-    response = page.goto(url)
-    assert response
-    if response.status != 200:
-        raise ValueError(f"Failed to fetch {url}, status: {response.status}")
-    # get all div class="post" objects
-    posts = page.query_selector_all("div.post")
-    # get the first one
-    vids: list[VidEntry] = []
-    for post in posts:
+    last_exception: BaseException | None = None
+    for _ in range(10):
         try:
-            link = post.query_selector("a")
-            assert link
-            href = link.get_attribute("href")
-            assert href
-            title = post.query_selector("div.title")
-            assert title
-            title_text = title.inner_text().strip()
-            href = BASE_URL + href
-            vids.append(VidEntry(title=title_text, url=href))
+            # From: https://www.brighteon.com/channels/hrreport
+            # To: https://www.brighteon.com/channels/hrreport/videos?page=1
+            url = f"{channel_url}/videos?page={page_num}"
+            print(f"Fetching video list from {url}")
+            response = page.goto(url)
+
+            assert response
+            if response.status != 200:
+                # raise ValueError(f"Failed to fetch {url}, status: {response.status}")
+                msg = f"Failed to fetch {url}, status: {response.status}"
+                warnings.warn(msg)
+                raise ValueError(msg)
+            # get all div class="post" objects
+            posts = page.query_selector_all("div.post")
+            # get the first one
+            vids: list[VidEntry] = []
+            for post in posts:
+                try:
+                    link = post.query_selector("a")
+                    assert link
+                    href = link.get_attribute("href")
+                    assert href
+                    title = post.query_selector("div.title")
+                    assert title
+                    title_text = title.inner_text().strip()
+                    href = BASE_URL + href
+                    vids.append(VidEntry(title=title_text, url=href))
+                except Exception as e:  # pylint: disable=broad-except
+                    warnings.warn(f"Failed to get url: {e}")
+            print(f"Found {len(vids)} videos.")
+            return vids
         except Exception as e:  # pylint: disable=broad-except
-            warnings.warn(f"Failed to get url: {e}")
-    print(f"Found {len(vids)} videos.")
-    return vids
+            print(f"Attempt to fetch video info failed with error: {e}. Retrying...")
+            last_exception = e
+    assert last_exception is not None
+    raise last_exception
 
 
 def _update_library(outdir: str, channel_name: str, full_scan: bool, limit: int = -1) -> Library:
@@ -57,7 +69,7 @@ def _update_library(outdir: str, channel_name: str, full_scan: bool, limit: int 
     library = Library(library_json)
     count = 0
     stored_vids: list[VidEntry] = library.load()
-    with launch_playwright() as (page, _):
+    with launch_playwright(timeout_seconds=300) as (page, _):
         # Determine whether to run headless based on the environment variable
         urls: list[VidEntry] = []
         page_num = 0
