@@ -1,2 +1,2 @@
 [MESSAGES CONTROL]
-disable=line-too-long
+disable=missing-module-docstring,missing-class-docstring,missing-function-docstring,line-too-long,raise-missing-from,too-few-public-methods,too-many-return-statements
