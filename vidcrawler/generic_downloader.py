@@ -17,16 +17,16 @@ def to_rumble_channel_url(id: ChannelId) -> ChannelUrl:
 
 def to_youtube_channel_url(id: ChannelId) -> ChannelUrl:
     url: str = f"https://www.youtube.com/channel/{id}"
-    return url
+    return ChannelUrl(url)
 
 
-def fetch_all_videos_in_rumble_channel(channel_id: ChannelId) -> None:
+def fetch_all_videos_in_rumble_channel(channel_id: ChannelId) -> list[VideoId]:
     url: ChannelUrl = to_rumble_channel_url(channel_id)
     vids: list[VideoId] = fetch_videos_from_channel(url)
     return vids
 
 
-def fetch_all_videos_in_youtube_channel(channel_id: ChannelId) -> None:
+def fetch_all_videos_in_youtube_channel(channel_id: ChannelId) -> list[VideoId]:
     url: ChannelUrl = to_youtube_channel_url(channel_id)
     vids: list[VideoId] = fetch_videos_from_channel(url)
     return vids
