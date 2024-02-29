@@ -7,14 +7,14 @@ Rumble scrapper.
 import json
 import sys
 import traceback
+import warnings
 from typing import Dict, List, Tuple
 
 import isodate  # type: ignore
-import requests
 from bs4 import BeautifulSoup  # type: ignore
 
 from .date import iso_fmt, now_local
-from .fetch_html import fetch_html_using_request_lib as fetch_html
+from .fetch_html import fetch_html_using_curl as fetch_html
 from .video_info import VideoInfo
 
 
@@ -33,7 +33,12 @@ def fetch_rumble(channel: str) -> Tuple[str, str]:
     try:
         sys.stdout.write("Rumble visiting %s (%s)\n" % (channel, url))
         html_doc = fetch_html(url)
-    except requests.exceptions.HTTPError:
+    except KeyboardInterrupt:
+        raise
+    except SystemExit:  # pylint: disable=try-except-raise
+        raise
+    except Exception as err:  # pylint: disable=broad-except
+        warnings.warn(f"Error fetching rumble channel {channel}: {err}")
         channel_url = "https://rumble.com/user/%s" % channel
         url = "https://rumble.com/user/%s" % channel
         sys.stdout.write(f"Rumble alt visiting {channel} ({url})\n")
