@@ -57,10 +57,10 @@ def fetch_rumble_channel_today(channel_name: str, channel: str) -> List[VideoInf
     html_doc, channel_url = fetch_rumble(channel)
     # print(html_doc)
     soup = BeautifulSoup(html_doc, "html.parser")
-    for article in soup.find_all("article", class_="video-item"):
+    for article in soup.find_all("div", class_="videostream thumbnail__grid--item"):
         try:
-            article_duration_dom = article.find(class_="video-item--duration")
-            duration = "" if not article_duration_dom else article_duration_dom["data-value"]
+            article_duration_dom = article.find(class_="videostream__status--duration")
+            duration = article_duration_dom.get_text().strip()
             vid_src_suffix = article.find(class_="video-item--a")["href"]
             vid_src = "https://rumble.com%s" % vid_src_suffix
             sys.stdout.write("  visiting video %s (%s)\n" % (channel, vid_src))
