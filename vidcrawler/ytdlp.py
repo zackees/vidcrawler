@@ -29,6 +29,26 @@ def fetch_channel_info_ytdlp(video_url: str) -> dict[Any, Any]:
     return data
 
 
+def fetch_video_info(video_url: str) -> dict:
+    cmd_list = [
+        "yt-dlp",
+        "-J",
+        video_url,
+    ]
+    completed_proc = subprocess.run(cmd_list, capture_output=True, text=True, shell=True, check=True)
+    if completed_proc.returncode != 0:
+        stderr = completed_proc.stderr
+        warnings.warn(f"Failed to run yt-dlp with args: {cmd_list}, stderr: {stderr}")
+    lines: list[str] = []
+    for line in completed_proc.stdout.splitlines():
+        if line.startswith("OSError:"):
+            continue
+        lines.append(line)
+    out = "\n".join(lines)
+    data = json.loads(out)
+    return data
+
+
 def fetch_channel_url_ytdlp(video_url: str) -> str:
     """Fetch the info."""
     # yt-dlp -J "VIDEO_URL" > video_info.json

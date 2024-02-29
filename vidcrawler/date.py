@@ -83,3 +83,8 @@ def iso8601_duration_as_seconds(d: str) -> int:
                 this = number
             seconds = seconds + this
     return seconds
+
+
+def timestamp_to_iso8601(timestamp: float) -> str:
+    """Converts a timestamp to an iso8601 string"""
+    return datetime.utcfromtimestamp(timestamp).isoformat() + "Z"

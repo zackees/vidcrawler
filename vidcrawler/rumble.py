@@ -4,26 +4,17 @@ Rumble scrapper.
 
 # pylint: disable=line-too-long,missing-function-docstring,consider-using-f-string,too-many-locals,invalid-name,no-else-return,fixme
 
-import json
 import sys
 import traceback
 import warnings
-from typing import Dict, List, Tuple
+from typing import List, Tuple
 
-import isodate  # type: ignore
 from bs4 import BeautifulSoup  # type: ignore
 
-from .date import iso_fmt, now_local
+from .date import iso_fmt, now_local, timestamp_to_iso8601
 from .fetch_html import fetch_html_using_curl as fetch_html
 from .video_info import VideoInfo
-
-
-def parse_rumble_video_object(html_doc: str) -> Dict[str, str]:
-    soup_article = BeautifulSoup(html_doc, "html.parser")
-    script_dom = soup_article.find("script", {"type": "application/ld+json"})
-    json_string = script_dom.contents[0]
-    data = json.loads(json_string)  # type: ignore
-    return data[0]  # type: ignore
+from .ytdlp import fetch_video_info
 
 
 def fetch_rumble(channel: str) -> Tuple[str, str]:
@@ -46,7 +37,8 @@ def fetch_rumble(channel: str) -> Tuple[str, str]:
     return (html_doc, channel_url)
 
 
-# type: ignore
+def rumble_video_id_to_embed_url(video_id: str) -> str:
+    return f"https://rumble.com/embed/{video_id}"
 
 
 def fetch_rumble_channel_today(channel_name: str, channel: str) -> List[VideoInfo]:
@@ -55,7 +47,6 @@ def fetch_rumble_channel_today(channel_name: str, channel: str) -> List[VideoInf
     html_doc: str = ""
     channel_url: str = ""
     html_doc, channel_url = fetch_rumble(channel)
-    # print(html_doc)
     soup = BeautifulSoup(html_doc, "html.parser")
     for article in soup.find_all("div", class_="videostream thumbnail__grid--item"):
         try:
@@ -64,22 +55,16 @@ def fetch_rumble_channel_today(channel_name: str, channel: str) -> List[VideoInf
             vid_src_suffix = article.find("a", class_="videostream__link link")["href"]
             vid_src = "https://rumble.com%s" % vid_src_suffix
             sys.stdout.write("  visiting video %s (%s)\n" % (channel, vid_src))
-            html_doc2 = fetch_html(vid_src)
-            video_obj = parse_rumble_video_object(html_doc2)
-            title = video_obj["name"]
-            iframe_src = video_obj["embedUrl"]
+            video_obj = fetch_video_info(vid_src)
+            video_id = video_obj["id"]
+            title = video_obj["fulltitle"]
+            iframe_src = rumble_video_id_to_embed_url(video_id)
             desc_text = video_obj["description"]
-            publish_date = video_obj["uploadDate"]
-
-            if not duration:
-                duration_str = video_obj["duration"]
-                duration = isodate.parse_duration(duration_str).total_seconds()
-            try:
-                views = video_obj["interactionStatistic"]["userInteractionCount"]  # type: ignore
-            except KeyError:
-                views = "?"
-            # img_src = video_obj['thumbnailUrl']
-            img_src = article.find(class_="video-item--img")["src"]
+            publish_timestamp = float(video_obj["timestamp"])
+            publish_date = timestamp_to_iso8601(publish_timestamp)
+            views = str(video_obj["view_count"])
+            thumbnails: list[dict[str, str]] = video_obj["thumbnails"]
+            img_src = thumbnails[0]["url"]
             now_datestr = iso_fmt(now_local())
             o = VideoInfo(
                 channel_name=channel_name,
