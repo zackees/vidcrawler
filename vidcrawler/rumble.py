@@ -61,7 +61,7 @@ def fetch_rumble_channel_today(channel_name: str, channel: str) -> List[VideoInf
         try:
             article_duration_dom = article.find(class_="videostream__status--duration")
             duration = article_duration_dom.get_text().strip()
-            vid_src_suffix = article.find(class_="video-item--a")["href"]
+            vid_src_suffix = article.find("a", class_="videostream__link link")["href"]
             vid_src = "https://rumble.com%s" % vid_src_suffix
             sys.stdout.write("  visiting video %s (%s)\n" % (channel, vid_src))
             html_doc2 = fetch_html(vid_src)
