@@ -42,10 +42,10 @@ def fetch_rumble(channel: str) -> RumbleResponse:
     try:
         sys.stdout.write("Rumble visiting %s (%s)\n" % (channel, url))
         # html_doc = fetch_rumble_channel_url(url)
-        fetch_result: RumbleResponse = fetch_rumble_channel_url(url)
-        if fetch_result.fetch_result.ok:
-            html_doc = fetch_result.html_doc
-        return RumbleResponse(html_doc, channel_url, fetch_result)
+        response: RumbleResponse = fetch_rumble_channel_url(url)
+        if response.fetch_result.ok:
+            html_doc = response.fetch_result.html
+        return RumbleResponse(html_doc, channel_url, response.fetch_result)
 
     except KeyboardInterrupt:
         raise
@@ -89,7 +89,7 @@ def fetch_rumble_channel_today_legacy(channel_name: str, channel: str) -> List[V
     html_doc = fetch_response.html_doc
     channel_url = fetch_response.channel_url
     fetch_response = fetch_rumble_channel_url(channel_url)
-    if not fetch_response.ok:
+    if not fetch_response.fetch_result.ok:
         warnings.warn(f"Failed to fetch {channel_url}")
         return []
     soup = BeautifulSoup(html_doc, "html.parser")
@@ -143,7 +143,7 @@ def fetch_rumble_channel_today_partial_result(channel_name: str, channel: str) -
     html_doc = response.html_doc
     channel_url = response.channel_url
     fetch_response = fetch_rumble_channel_url(channel_url)
-    if not fetch_response.ok:
+    if not fetch_response.fetch_result.ok:
         warnings.warn(f"Failed to fetch {channel_url}")
         return []
 
