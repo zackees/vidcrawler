@@ -5,6 +5,7 @@ from typing import Optional
 
 from vidcrawler.date import now_local, parse_datetime
 from vidcrawler.rumble import (
+    PartialVideo,
     fetch_rumble,
     fetch_rumble_channel_all_partial_result,
     fetch_rumble_channel_today,
@@ -53,10 +54,16 @@ class RumbleScraperTester(unittest.TestCase):
 
     def test_fetch_plandemic_channel_range_query(self) -> None:
         # vid_list = fetch_rumble_channel_all_partial_result(channel_name="Plandemic", channel="PlandemicSeriesOfficial")
-        vid_list = fetch_rumble_channel_all_partial_result(
-            channel_name="Plandemic", channel="PlandemicSeriesOfficial", max_days=3
-        )
+        after_str = "June 19, 2024"
+        parse_fmt = "%B %d, %Y"
+        after: datetime = datetime.strptime(after_str, parse_fmt)
+        vid_list: list[PartialVideo] = fetch_rumble_channel_all_partial_result(channel_name="Plandemic", channel="PlandemicSeriesOfficial", after=after)
         self.assertTrue(vid_list)
+        # now test that all videos are after the date
+        vid: PartialVideo
+        for vid in vid_list:
+            vid_date = parse_datetime(vid.date)
+            self.assertGreaterEqual(vid_date, after)
 
 
 if __name__ == "__main__":

@@ -71,12 +71,23 @@ def rumble_video_id_to_embed_url(video_id: str) -> str:
 
 @dataclass
 class PartialVideo:
-    vid_src: str
+    url: str
     duration: str
     videoid: str
     channel_url: str
     channel_name: str
-    fuzzy_date: str
+    date: datetime
+
+    def to_dict(self) -> dict:
+        """Returns a json serializable dictionary."""
+        return {
+            "url": self.url,
+            "duration": self.duration,
+            "videoid": self.videoid,
+            "channel_url": self.channel_url,
+            "channel_name": self.channel_name,
+            "date": self.date.isoformat(),
+        }
 
 
 def fetch_rumble_channel_today_legacy(channel_name: str, channel: str) -> List[VideoInfo]:
@@ -159,13 +170,14 @@ def fetch_rumble_channel_today_partial_result(channel_name: str, channel: str) -
                 fuzzy_date = dom_vid_status.get_text().strip()
             else:
                 fuzzy_date = ""
+            date: datetime = parse_fuzzy_date(fuzzy_date)
             partial_video: PartialVideo = PartialVideo(
-                vid_src=vid_src,
+                url=vid_src,
                 duration=duration,
                 videoid="",
                 channel_url=channel_url,
                 channel_name=channel_name,
-                fuzzy_date=fuzzy_date,
+                date=date,
             )
             out.append(partial_video)
         except BaseException as e:  # pylint: disable=broad-except
@@ -228,9 +240,7 @@ def parse_fuzzy_date(datestr: str) -> datetime:
     return datetime.strptime(datestr, "%B %d, %Y")
 
 
-def fetch_rumble_channel_all_partial_result(
-        channel_name: str, channel: str, after: datetime | None = None
-) -> list[PartialVideo]:
+def fetch_rumble_channel_all_partial_result(channel_name: str, channel: str, after: datetime | None = None) -> list[PartialVideo]:
     out: List[PartialVideo] = []
     page = 1
     is_user_channel = False
@@ -254,6 +264,9 @@ def fetch_rumble_channel_all_partial_result(
             if fetch_result.ok:
                 html_doc = fetch_result.html
             else:
+                status_code = fetch_result.status_code
+                if status_code == 404:
+                    break  # expected result when we've reached the end of the channel.
                 warnings.warn(f"Failed to fetch {current_channel_url}")
                 break
             soup = BeautifulSoup(html_doc, "html.parser")
@@ -264,16 +277,17 @@ def fetch_rumble_channel_all_partial_result(
                     vid_src = f"https://rumble.com{vid_src_suffix}"
                     fuzzy_date = parse_date(article)
                     date = parse_fuzzy_date(fuzzy_date)
-                    datestr_yyyy_mm_dd = date.strftime("%Y-%m-%d")
+                    if after is not None and date > after:
+                        break
                     videoid = vid_src.split("/")[-1]
                     videoid = videoid.split("-")[0]
                     partial_video: PartialVideo = PartialVideo(
-                        vid_src=vid_src,
+                        url=vid_src,
                         duration=duration,
                         videoid=videoid,
                         channel_url=current_channel_url,
                         channel_name=channel_name,
-                        fuzzy_date=datestr_yyyy_mm_dd,
+                        date=date,
                     )
                     out.append(partial_video)
                 except BaseException as e:  # pylint: disable=broad-except
@@ -289,7 +303,7 @@ def fetch_rumble_channel_all_partial_result(
 
 
 def resolve(rumble_partial: PartialVideo) -> VideoInfo:
-    vid_src = rumble_partial.vid_src
+    vid_src = rumble_partial.url
     sys.stdout.write("  visiting video %s (%s)\n" % (rumble_partial.channel_name, vid_src))
     video_obj = fetch_video_info(vid_src)
     video_id = video_obj["id"]
