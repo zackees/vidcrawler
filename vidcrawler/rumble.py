@@ -228,7 +228,9 @@ def parse_fuzzy_date(datestr: str) -> datetime:
     return datetime.strptime(datestr, "%B %d, %Y")
 
 
-def fetch_rumble_channel_all_partial_result(channel_name: str, channel: str) -> list[PartialVideo]:
+def fetch_rumble_channel_all_partial_result(
+        channel_name: str, channel: str, after: datetime | None = None
+) -> list[PartialVideo]:
     out: List[PartialVideo] = []
     page = 1
     is_user_channel = False

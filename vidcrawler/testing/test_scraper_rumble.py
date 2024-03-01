@@ -51,6 +51,13 @@ class RumbleScraperTester(unittest.TestCase):
         vid_list = fetch_rumble_channel_all_partial_result(channel_name="Plandemic", channel="PlandemicSeriesOfficial")
         self.assertTrue(vid_list)
 
+    def test_fetch_plandemic_channel_range_query(self) -> None:
+        # vid_list = fetch_rumble_channel_all_partial_result(channel_name="Plandemic", channel="PlandemicSeriesOfficial")
+        vid_list = fetch_rumble_channel_all_partial_result(
+            channel_name="Plandemic", channel="PlandemicSeriesOfficial", max_days=3
+        )
+        self.assertTrue(vid_list)
+
 
 if __name__ == "__main__":
     unittest.main()
