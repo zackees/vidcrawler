@@ -4,13 +4,17 @@ from datetime import datetime
 from typing import Optional
 
 from vidcrawler.date import now_local, parse_datetime
-from vidcrawler.rumble import fetch_rumble, fetch_rumble_channel_today
+from vidcrawler.rumble import (
+    fetch_rumble,
+    fetch_rumble_channel_all_partial_result,
+    fetch_rumble_channel_today,
+)
 from vidcrawler.video_info import VideoInfo
 
 
 class RumbleScraperTester(unittest.TestCase):
     def test_fetch_rumble(self):
-        (html_doc, url) = fetch_rumble(channel="DiamondandSilk")
+        (html_doc, url) = fetch_rumble(channel="DiamongdandSilk")
         self.assertTrue(html_doc)
         self.assertTrue(url)
 
@@ -18,6 +22,7 @@ class RumbleScraperTester(unittest.TestCase):
         vid_list = fetch_rumble(channel="MaryamXHenein")
         self.assertTrue(vid_list)
 
+    @unittest.skip("Disable during testing")
     def test_fetch_bannon(self) -> None:
         max_days = 4
         vid_list = fetch_rumble_channel_today(channel="BannonsWarRoom", channel_name="BannonsWarRoom")
@@ -40,6 +45,15 @@ class RumbleScraperTester(unittest.TestCase):
             max_days,
             f"Bannon's last show was {bannons_last_show_in_days} days ago.",
         )
+
+    @unittest.skip("This test is too slow")
+    def test_fetch_rumble_channel_all_partial_result(self) -> None:
+        vid_list = fetch_rumble_channel_all_partial_result(channel_name="BannonsWarRoom", channel="BannonsWarRoom")
+        self.assertTrue(vid_list)
+
+    def test_fetch_plandemic_channel(self) -> None:
+        vid_list = fetch_rumble_channel_all_partial_result(channel_name="Plandemic", channel="PlandemicSeriesOfficial")
+        self.assertTrue(vid_list)
 
 
 if __name__ == "__main__":

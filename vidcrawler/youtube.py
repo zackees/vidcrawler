@@ -1,8 +1,10 @@
+# pylint: disable=invalid-name,consider-using-f-string,fixme,missing-function-docstring,R0801,too-many-locals
+
+
 """
 YouTube scraper.
 """
 
-# pylint: disable=invalid-name,consider-using-f-string,fixme,missing-function-docstring,R0801
 
 import datetime
 import json
@@ -21,7 +23,7 @@ from keyvalue_sqlite import KeyValueSqlite as KeyValueDB  # type: ignore
 
 from .date import iso8601_duration_as_seconds, iso_fmt, now_local
 from .error import log_error
-from .fetch_html import fetch_html, fetch_html_using_request_lib
+from .fetch_html import FetchResult, fetch_html
 from .video_info import VideoInfo
 
 _ENABLE_PROFILE_FETCH = False
@@ -99,7 +101,10 @@ def fetch_youtube_duration_str(url: str, cache_path: Optional[str]) -> str:
 def _fetch_youtube_channel_via_rss(channel_name: str, channel_id: str) -> List[VideoInfo]:
     url = "https://www.youtube.com/feeds/videos.xml?channel_id=" + channel_id
     sys.stdout.write(f"Youtube visiting {channel_name} ({url})\n")
-    content = fetch_html(url)
+    response: FetchResult = fetch_html(url)
+    if response.status_code != 200:
+        raise OSError(f"Could not fetch {url}")
+    content = response.html
     if "was not found on this server" in content:  # TODO: Make less hacky.
         raise OSError(f"Could not fetch {url}")
     feed = feedparser.parse(content)
@@ -112,7 +117,11 @@ def _fetch_youtube_channel_via_rss(channel_name: str, channel_id: str) -> List[V
         # Disable profile picture for now.
         if _ENABLE_PROFILE_FETCH and profile_picture is None:
             sys.stdout.write(f"  Youtube visiting {entry.link} to fetch profile picture.\n")
-            vid_html = fetch_html(entry.link)
+            # vid_html = fetch_html(entry.link)
+            response = fetch_html(entry.link)
+            vid_html = response.html
+            if response.status_code != 200:
+                sys.stdout.write(f"    Error - {entry.link} returned status code {response.status_code}\n")
             if vid_html is None:
                 sys.stdout.write(f"    Error - vid_html from {entry.link} was None")
             else:
@@ -153,13 +162,19 @@ def _fetch_youtube_channel_via_html(
     # TODO: this should be cached to avoid a fetch.
     url = f"https://www.youtube.com/channel/{channel_id}"
     sys.stdout.write(f"Youtube visiting {channel_name} ({url})\n")
-    html_doc = fetch_html(url)
+    response: FetchResult = fetch_html(url)
+    html_doc = response.html
+    if not response.ok:
+        raise OSError(f"Could not fetch {url}")
     pat = r'\"canonicalBaseUrl\":\"/c/([^\"]+)"'
     canonical_name = re.findall(pat, html_doc)[0]
     # Now the fetch the videos list from the channels canonical name
     # url.
     url = f"https://youtube.com/c/{canonical_name}/videos"
-    chan_html_doc = fetch_html_using_request_lib(url)
+    response = fetch_html(url)
+    chan_html_doc = response.html
+    if not response.ok:
+        raise OSError(f"Could not fetch {url}")
     # Inside a json file there is a bunch of videos that can be found
     # using the following regex.
     pat = r"{\"videoId\":\"([^\"]+)\","
@@ -209,7 +224,12 @@ def fetch_youtube_today(
 
 def _test_fetch_youtube_video_info(url: str) -> None:
     sys.stdout.write("Youtube visiting video %s\n" % url)
-    html_doc = fetch_html(url)
+    # html_doc = fetch_html(url)
+    response: FetchResult = fetch_html(url)
+    html_doc = response.html
+    assert response.ok, f"{__file__}: Could not fetch html doc from {url}, because of status code {response.status_code}"
+    assert html_doc, f"{__file__}: Could not fetch html doc from {url}"
+
     premiered_ago_matches = re.findall(r'\"Premiered (.{1,15}) ago"}', html_doc)
     premiered_in_progress = re.findall(r'\"Premiere in progress\. Started (.{1,15}) ago"}', html_doc)
     started_streaming_matches = re.findall(r"\"Started streaming (.{1,15}) ago\"", html_doc)

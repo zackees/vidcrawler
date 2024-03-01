@@ -7,14 +7,26 @@ Rumble scrapper.
 import sys
 import traceback
 import warnings
+from dataclasses import dataclass
 from typing import List, Tuple
 
 from bs4 import BeautifulSoup  # type: ignore
 
 from .date import iso_fmt, now_local, timestamp_to_iso8601
+from .fetch_html import FetchResult
 from .fetch_html import fetch_html_using_curl as fetch_html
 from .video_info import VideoInfo
 from .ytdlp import fetch_video_info
+
+
+def fetch_rumble_channel_url(channel_url: str) -> str:
+    html_doc: str = ""
+    sys.stdout.write(f"Rumble visiting {channel_url}\n")
+    # html_doc = fetch_html(channel_url)
+    fetch_result: FetchResult = fetch_html(channel_url)
+    if fetch_result.ok:
+        html_doc = fetch_result.html
+    return html_doc
 
 
 def fetch_rumble(channel: str) -> Tuple[str, str]:
@@ -23,7 +35,7 @@ def fetch_rumble(channel: str) -> Tuple[str, str]:
     url: str = "https://rumble.com/c/%s?date=this-month" % channel
     try:
         sys.stdout.write("Rumble visiting %s (%s)\n" % (channel, url))
-        html_doc = fetch_html(url)
+        html_doc = fetch_rumble_channel_url(url)
     except KeyboardInterrupt:
         raise
     except SystemExit:  # pylint: disable=try-except-raise
@@ -33,14 +45,17 @@ def fetch_rumble(channel: str) -> Tuple[str, str]:
         channel_url = "https://rumble.com/user/%s" % channel
         url = "https://rumble.com/user/%s" % channel
         sys.stdout.write(f"Rumble alt visiting {channel} ({url})\n")
-        html_doc = fetch_html(url)
+        # html_doc = fetch_html(url)
+        fetch_result = fetch_html(url)
+        if fetch_result.ok:
+            html_doc = fetch_result.html
+        else:
+            warnings.warn(f"Failed to fetch {url}")
     return (html_doc, channel_url)
 
 
 def rumble_video_id_to_embed_url(video_id: str) -> str:
     return f"https://rumble.com/embed/{video_id}"
-
-from dataclasses import dataclass
 
 
 @dataclass
@@ -50,7 +65,7 @@ class PartialVideo:
     videoid: str
     channel_url: str
     channel_name: str
-    
+    fuzzy_date: str
 
 
 def fetch_rumble_channel_today_legacy(channel_name: str, channel: str) -> List[VideoInfo]:
@@ -100,6 +115,7 @@ def fetch_rumble_channel_today_legacy(channel_name: str, channel: str) -> List[V
             sys.stdout.write("Error: %s\nCould not parse\n%s\n\n" % (str(s), str(article)))
     return output
 
+
 def fetch_rumble_channel_today_partial_result(channel_name: str, channel: str) -> list[PartialVideo]:
     out: List[PartialVideo] = []
     html_doc: str = ""
@@ -112,18 +128,122 @@ def fetch_rumble_channel_today_partial_result(channel_name: str, channel: str) -
             duration = article_duration_dom.get_text().strip()
             vid_src_suffix = article.find("a", class_="videostream__link link")["href"]
             vid_src = "https://rumble.com%s" % vid_src_suffix
+            dom_vid_status = article.find("div", class_="videostream__status")
+            if dom_vid_status is not None:
+                fuzzy_date = dom_vid_status.get_text().strip()
+            else:
+                fuzzy_date = ""
             partial_video: PartialVideo = PartialVideo(
                 vid_src=vid_src,
                 duration=duration,
                 videoid="",
                 channel_url=channel_url,
                 channel_name=channel_name,
+                fuzzy_date=fuzzy_date,
             )
             out.append(partial_video)
         except BaseException as e:  # pylint: disable=broad-except
             s = "".join(traceback.format_exception(None, e, e.__traceback__))
             sys.stdout.write("Error: %s\nCould not parse\n%s\n\n" % (str(s), str(article)))
     return out
+
+
+def parse_duration(article_soup: BeautifulSoup) -> str:
+    dom_duration = article_soup.find("div", class_="videostream__status--duration")
+    if dom_duration is not None:
+        duration = dom_duration.get_text().strip()
+        return duration
+    dom_live = article_soup.find("a", class_="videostream__status--live")
+    if dom_live is not None:
+        if dom_live.get_text().strip().upper() == "LIVE":
+            return "LIVE"
+    dom_dvr = article_soup.find("a", class_="videostream__status--dvr")
+    if dom_dvr is not None:
+        if dom_dvr.get_text().strip().upper() == "DVR":
+            return "DVR"
+    raise ValueError("Could not find duration")
+
+
+def parse_date(article_soup: BeautifulSoup) -> str:
+    # videostream__data--item videostream__date
+    dom_date = article_soup.find(class_="videostream__data--item videostream__date")
+    if dom_date is not None:
+        # does text attribute exist?
+        if hasattr(dom_date, "title"):
+            date = dom_date["title"]
+            if date:
+                return date
+        return dom_date.get_text().strip()
+    warnings.warn("Could not find date")
+    return ""
+
+
+def get_channel_url(channel: str, page_num: int, is_user_channel: bool) -> str:
+    # only return a page if the page number is greater than 1
+    # if page_num > 1:
+    #    if is_user_channel:
+    #        return f"https://rumble.com/user/{channel}?page={page_num}"
+    #    return f"https://rumble.com/c/{channel}?page={page_num}"
+    # if is_user_channel:
+    #    return f"https://rumble.com/user/{channel}"
+    # return f"https://rumble.com/c/{channel}"
+    # let's simplify this
+    if is_user_channel:
+        base_url = f"https://rumble.com/user/{channel}"
+    else:
+        base_url = f"https://rumble.com/c/{channel}"
+    if page_num > 1:
+        return f"{base_url}?page={page_num}"
+    return base_url
+
+
+def fetch_rumble_channel_all_partial_result(channel_name: str, channel: str) -> list[PartialVideo]:
+    out: List[PartialVideo] = []
+    page = 1
+    is_user_channel = False
+    test_url = get_channel_url(channel, page, is_user_channel)
+    fetch_response = fetch_html(test_url)
+    if not fetch_response.ok:
+        is_user_channel = True
+        # now assert they can be reached
+        test_url = get_channel_url(channel, page, is_user_channel)
+        fetch_response = fetch_html(test_url)
+        if not fetch_response.ok:
+            raise ValueError(f"Could not find channel or user {channel}")
+    while True:
+        try:
+            html_doc: str = ""
+            current_channel_url = get_channel_url(channel, page, is_user_channel)
+            html_doc = fetch_rumble_channel_url(current_channel_url)
+            soup = BeautifulSoup(html_doc, "html.parser")
+            for article in soup.find_all("div", class_="videostream thumbnail__grid--item"):
+                try:
+                    duration = parse_duration(article)
+                    vid_src_suffix = article.find("a", class_="videostream__link link")["href"]
+                    vid_src = f"https://rumble.com{vid_src_suffix}"
+                    fuzzy_date = parse_date(article)
+                    videoid = vid_src.split("/")[-1]
+                    videoid = videoid.split("-")[0]
+                    partial_video: PartialVideo = PartialVideo(
+                        vid_src=vid_src,
+                        duration=duration,
+                        videoid=videoid,
+                        channel_url=current_channel_url,
+                        channel_name=channel_name,
+                        fuzzy_date=fuzzy_date,
+                    )
+                    out.append(partial_video)
+                except BaseException as e:  # pylint: disable=broad-except
+                    s = "".join(traceback.format_exception(None, e, e.__traceback__))
+                    sys.stdout.write("Error: %s\nCould not parse\n%s\n\n" % (str(s), str(article)))
+        except KeyboardInterrupt:
+            raise
+        except SystemExit:  # pylint: disable=try-except-raise
+            raise
+        except Exception as err:  # pylint: disable=broad-except
+            warnings.warn(f"Error fetching rumble channel {channel}: {err}")
+    return out
+
 
 def resolve(rumble_partial: PartialVideo) -> VideoInfo:
     vid_src = rumble_partial.vid_src
@@ -174,6 +294,7 @@ def fetch_rumble_channel_today(channel_name: str, channel: str) -> List[VideoInf
         vinfo = resolve(partial)
         output.append(vinfo)
     return output
+
 
 def interactive_test() -> None:
     sys.stdout.write("Rumble user: ")

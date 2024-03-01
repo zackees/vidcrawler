@@ -6,7 +6,7 @@ from typing import List
 
 import requests
 
-from vidcrawler.fetch_html import fetch_html
+from vidcrawler.fetch_html import FetchResult, fetch_html
 from vidcrawler.video_info import VideoInfo
 from vidcrawler.youtube import fetch_youtube_today, parse_youtube_video
 
@@ -33,7 +33,8 @@ class YouTubeScraperTester(unittest.TestCase):
     @unittest.skip("test_fetch_video_info not working")
     def test_fetch_video_info(self) -> None:
         url: str = "https://www.youtube.com/watch?v=5nBqIK0mrFI"
-        content: str = fetch_html(url)
+        fetch_result: FetchResult = fetch_html(url)
+        content = fetch_result.html
         d = parse_youtube_video(content)
         self.assertEqual("False", d["is_live"])
         self.assertEqual(
