@@ -8,7 +8,8 @@ import sys
 import traceback
 import warnings
 from dataclasses import dataclass
-from typing import List, Tuple
+from datetime import datetime
+from typing import List
 
 from bs4 import BeautifulSoup  # type: ignore
 
@@ -19,23 +20,33 @@ from .video_info import VideoInfo
 from .ytdlp import fetch_video_info
 
 
-def fetch_rumble_channel_url(channel_url: str) -> str:
-    html_doc: str = ""
+@dataclass
+class RumbleResponse:
+    html_doc: str
+    channel_url: str
+    fetch_result: FetchResult
+
+
+def fetch_rumble_channel_url(channel_url: str) -> RumbleResponse:
     sys.stdout.write(f"Rumble visiting {channel_url}\n")
     # html_doc = fetch_html(channel_url)
     fetch_result: FetchResult = fetch_html(channel_url)
-    if fetch_result.ok:
-        html_doc = fetch_result.html
-    return html_doc
+    # return fetch_result
+    return RumbleResponse(fetch_result.html, channel_url, fetch_result)
 
 
-def fetch_rumble(channel: str) -> Tuple[str, str]:
+def fetch_rumble(channel: str) -> RumbleResponse:
     html_doc: str = ""
     channel_url: str = "https://rumble.com/c/%s" % channel
     url: str = "https://rumble.com/c/%s?date=this-month" % channel
     try:
         sys.stdout.write("Rumble visiting %s (%s)\n" % (channel, url))
-        html_doc = fetch_rumble_channel_url(url)
+        # html_doc = fetch_rumble_channel_url(url)
+        fetch_result: RumbleResponse = fetch_rumble_channel_url(url)
+        if fetch_result.fetch_result.ok:
+            html_doc = fetch_result.html_doc
+        return RumbleResponse(html_doc, channel_url, fetch_result)
+
     except KeyboardInterrupt:
         raise
     except SystemExit:  # pylint: disable=try-except-raise
@@ -51,7 +62,7 @@ def fetch_rumble(channel: str) -> Tuple[str, str]:
             html_doc = fetch_result.html
         else:
             warnings.warn(f"Failed to fetch {url}")
-    return (html_doc, channel_url)
+        raise
 
 
 def rumble_video_id_to_embed_url(video_id: str) -> str:
@@ -73,7 +84,14 @@ def fetch_rumble_channel_today_legacy(channel_name: str, channel: str) -> List[V
     output: List[VideoInfo] = []
     html_doc: str = ""
     channel_url: str = ""
-    html_doc, channel_url = fetch_rumble(channel)
+    # html_doc, channel_url = fetch_rumble(channel)
+    fetch_response: RumbleResponse = fetch_rumble(channel)
+    html_doc = fetch_response.html_doc
+    channel_url = fetch_response.channel_url
+    fetch_response = fetch_rumble_channel_url(channel_url)
+    if not fetch_response.ok:
+        warnings.warn(f"Failed to fetch {channel_url}")
+        return []
     soup = BeautifulSoup(html_doc, "html.parser")
     for article in soup.find_all("div", class_="videostream thumbnail__grid--item"):
         try:
@@ -120,7 +138,15 @@ def fetch_rumble_channel_today_partial_result(channel_name: str, channel: str) -
     out: List[PartialVideo] = []
     html_doc: str = ""
     channel_url: str = ""
-    html_doc, channel_url = fetch_rumble(channel)
+    # html_doc, channel_url = fetch_rumble(channel)
+    response: RumbleResponse = fetch_rumble(channel)
+    html_doc = response.html_doc
+    channel_url = response.channel_url
+    fetch_response = fetch_rumble_channel_url(channel_url)
+    if not fetch_response.ok:
+        warnings.warn(f"Failed to fetch {channel_url}")
+        return []
+
     soup = BeautifulSoup(html_doc, "html.parser")
     for article in soup.find_all("div", class_="videostream thumbnail__grid--item"):
         try:
@@ -197,6 +223,11 @@ def get_channel_url(channel: str, page_num: int, is_user_channel: bool) -> str:
     return base_url
 
 
+def parse_fuzzy_date(datestr: str) -> datetime:
+    """Parses strings like 'November 6, 2023' into datetime objects."""
+    return datetime.strptime(datestr, "%B %d, %Y")
+
+
 def fetch_rumble_channel_all_partial_result(channel_name: str, channel: str) -> list[PartialVideo]:
     out: List[PartialVideo] = []
     page = 1
@@ -212,9 +243,17 @@ def fetch_rumble_channel_all_partial_result(channel_name: str, channel: str) -> 
             raise ValueError(f"Could not find channel or user {channel}")
     while True:
         try:
+            curr_page = page
+            page += 1
             html_doc: str = ""
-            current_channel_url = get_channel_url(channel, page, is_user_channel)
-            html_doc = fetch_rumble_channel_url(current_channel_url)
+            current_channel_url = get_channel_url(channel, curr_page, is_user_channel)
+            # html_doc = fetch_rumble_channel_url(current_channel_url)
+            fetch_result: FetchResult = fetch_html(current_channel_url)
+            if fetch_result.ok:
+                html_doc = fetch_result.html
+            else:
+                warnings.warn(f"Failed to fetch {current_channel_url}")
+                break
             soup = BeautifulSoup(html_doc, "html.parser")
             for article in soup.find_all("div", class_="videostream thumbnail__grid--item"):
                 try:
@@ -222,6 +261,8 @@ def fetch_rumble_channel_all_partial_result(channel_name: str, channel: str) -> 
                     vid_src_suffix = article.find("a", class_="videostream__link link")["href"]
                     vid_src = f"https://rumble.com{vid_src_suffix}"
                     fuzzy_date = parse_date(article)
+                    date = parse_fuzzy_date(fuzzy_date)
+                    datestr_yyyy_mm_dd = date.strftime("%Y-%m-%d")
                     videoid = vid_src.split("/")[-1]
                     videoid = videoid.split("-")[0]
                     partial_video: PartialVideo = PartialVideo(
@@ -230,7 +271,7 @@ def fetch_rumble_channel_all_partial_result(channel_name: str, channel: str) -> 
                         videoid=videoid,
                         channel_url=current_channel_url,
                         channel_name=channel_name,
-                        fuzzy_date=fuzzy_date,
+                        fuzzy_date=datestr_yyyy_mm_dd,
                     )
                     out.append(partial_video)
                 except BaseException as e:  # pylint: disable=broad-except
