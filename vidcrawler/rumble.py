@@ -2,7 +2,7 @@
 Rumble scrapper.
 """
 
-# pylint: disable=line-too-long,missing-function-docstring,consider-using-f-string,too-many-locals,invalid-name,no-else-return,fixme
+# pylint: disable=line-too-long,missing-function-docstring,consider-using-f-string,too-many-locals,invalid-name,no-else-return,fixme,too-many-branches,too-many-statements
 
 import sys
 import traceback
@@ -72,6 +72,7 @@ def rumble_video_id_to_embed_url(video_id: str) -> str:
 @dataclass
 class PartialVideo:
     url: str
+    title: str
     duration: str
     videoid: str
     channel_url: str
@@ -170,9 +171,11 @@ def fetch_rumble_channel_today_partial_result(channel_name: str, channel: str) -
                 fuzzy_date = dom_vid_status.get_text().strip()
             else:
                 fuzzy_date = ""
+            title = parse_title(article)
             date: datetime = parse_fuzzy_date(fuzzy_date)
             partial_video: PartialVideo = PartialVideo(
                 url=vid_src,
+                title=title,
                 duration=duration,
                 videoid="",
                 channel_url=channel_url,
@@ -200,6 +203,15 @@ def parse_duration(article_soup: BeautifulSoup) -> str:
         if dom_dvr.get_text().strip().upper() == "DVR":
             return "DVR"
     raise ValueError("Could not find duration")
+
+
+def parse_title(article_soup: BeautifulSoup) -> str:
+    class_name = "thumbnail__title"
+    dom_title = article_soup.find(class_=class_name)
+    if dom_title is not None:
+        title = dom_title.get_text().strip()
+        return title
+    raise ValueError(f"Could not find title with class {class_name}")
 
 
 def parse_date(article_soup: BeautifulSoup) -> str:
@@ -277,12 +289,14 @@ def fetch_rumble_channel_all_partial_result(channel_name: str, channel: str, aft
                     vid_src = f"https://rumble.com{vid_src_suffix}"
                     fuzzy_date = parse_date(article)
                     date = parse_fuzzy_date(fuzzy_date)
+                    title = parse_title(article)
                     if after is not None and date > after:
                         break
                     videoid = vid_src.split("/")[-1]
                     videoid = videoid.split("-")[0]
                     partial_video: PartialVideo = PartialVideo(
                         url=vid_src,
+                        title=title,
                         duration=duration,
                         videoid=videoid,
                         channel_url=current_channel_url,

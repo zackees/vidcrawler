@@ -1,3 +1,5 @@
+# pylint: disable=too-many-arguments
+
 """Library json module."""
 
 import json
@@ -5,6 +7,7 @@ import os
 import re
 import warnings
 from dataclasses import dataclass
+from datetime import datetime
 
 from filelock import FileLock
 
@@ -71,11 +74,13 @@ class VidEntry:
     url: str
     title: str
     file_path: str
+    date: datetime | None
     error: bool = False
 
-    def __init__(self, url: str, title: str, file_path: str | None = None, error=False) -> None:
+    def __init__(self, url: str, title: str, file_path: str | None = None, date: datetime | None = None, error=False) -> None:
         self.url = url
         self.title = title
+        self.date = date
         if file_path is None:
             self.file_path = clean_filename(f"{title}.mp3")
         else:
@@ -98,6 +103,7 @@ class VidEntry:
         return {
             "url": self.url,
             "title": self.title,
+            "date": self.date.isoformat() if self.date else None,
             "file_path": self.file_path,
             "error": self.error,
         }
@@ -109,8 +115,9 @@ class VidEntry:
         if filepath is None:
             filepath = clean_filename(data["title"])
         filepath = clean_filename(filepath)
+        date = datetime.fromisoformat(data["date"]) if data.get("date") else None
         error = data.get("error", False)
-        return VidEntry(url=data["url"], title=data["title"], file_path=filepath, error=error)
+        return VidEntry(url=data["url"], title=data["title"], date=date, file_path=filepath, error=error)
 
     @classmethod
     def serialize(cls, data: list["VidEntry"]) -> str:
@@ -151,6 +158,10 @@ def find_missing_downloads(library_json_path: str) -> list[VidEntry]:
                     out.append(vid)
                 else:
                     warnings.warn(f"Skipping {vid.url} because it is marked as an error.")
+    all_have_a_date = all(vid.date for vid in out)
+    if all_have_a_date:
+        # sort oldest first
+        out.sort(key=lambda vid: vid.date)  # type: ignore
     return out
 
 
@@ -174,7 +185,7 @@ def merge_into_library(library_json_path: str, vids: list[VidEntry]) -> None:
     for vid in vids:
         title = vid.title
         file_path = vid.file_path
-        found_entries.append(VidEntry(url=vid.url, title=title, file_path=file_path))
+        found_entries.append(VidEntry(url=vid.url, title=title, file_path=file_path, date=vid.date))
     file_lock = library_json_path + ".lock"
     with FileLock(file_lock):
         existing_entries = load_json(library_json_path)
@@ -239,3 +250,11 @@ class Library:
         vid.error = True
         self.merge([vid])
         print(f"Marked {vid.url} as an error.")
+
+    def date_range(self) -> tuple[datetime, datetime] | None:
+        """Get the date range."""
+        vids = self.load()
+        dates = [vid.date for vid in vids if vid.date]
+        if not dates:
+            return None
+        return min(dates), max(dates)
