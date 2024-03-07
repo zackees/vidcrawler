@@ -5,6 +5,7 @@
 import json
 import os
 import re
+import traceback
 import warnings
 from dataclasses import dataclass
 from datetime import datetime
@@ -241,7 +242,9 @@ class Library:
             try:
                 download_mp3(url=next_url, outmp3=next_mp3_path)
             except Exception as e:  # pylint: disable=broad-except
+                stacktrace_str = traceback.format_exc()
                 print(f"Error downloading {next_url}: {e}")
+                print(stacktrace_str)
                 self.mark_error(vid)
             download_count += 1
 
