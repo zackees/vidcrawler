@@ -11,10 +11,15 @@ import warnings
 from docker_run_cmd.api import docker_run
 from static_ffmpeg import add_paths
 
+FFMPEG_PATH_ADDED = False
+
 
 def yt_dlp_download_mp3(url: str, outmp3: str) -> None:
     """Download the youtube video as an mp3."""
-    add_paths()
+    global FFMPEG_PATH_ADDED  # pylint: disable=global-statement
+    if not FFMPEG_PATH_ADDED:
+        add_paths()
+        FFMPEG_PATH_ADDED = True
     par_dir = os.path.dirname(outmp3)
     if par_dir:
         os.makedirs(par_dir, exist_ok=True)

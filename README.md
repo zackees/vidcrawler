@@ -115,6 +115,7 @@ This new command will a channel and all of it's files as mp3s. Great for transcr
 ```
 
 # Releases
+  * 1.0.27: Fixed polluting path space from multiple added static-ffmpeg
   * 1.0.24: Added `rumble-pull-channel`
   * 1.0.21: Misc fixes
   * 1.0.16: Make the library downloading more robust.
