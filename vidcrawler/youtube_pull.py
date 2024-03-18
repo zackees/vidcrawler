@@ -16,12 +16,13 @@ def parse_args() -> argparse.Namespace:
     """Parse command line arguments."""
     parser = argparse.ArgumentParser("youtube-pull")
     parser.add_argument(
-        "channel",
+        "--channel-name",
         type=str,
         # help="URL of the channel, example: https://www.youtube.com/@silverguru/videos",
         help="URL slug of the channel, example: @silverguru",
+        required=True,
     )
-    parser.add_argument("basedir", type=str)
+    parser.add_argument("--output-dir", type=str, help="Output directory", required=True)
     parser.add_argument(
         "--limit-scroll-pages",
         type=int,
@@ -68,9 +69,10 @@ def main() -> None:
     args = parse_args()
     if args.yt_dlp_uses_docker:
         os.environ["USE_DOCKER_YT_DLP"] = "1"
-    channel_url = to_channel_url(args.channel)
-    base_dir = Path(args.basedir)
-    output_dir = str(base_dir / args.channel / "youtube")
+    channel_url = to_channel_url(args.channel_name)
+    #base_dir = Path(args.basedir)
+    #output_dir = str(base_dir / args.channel / "youtube")
+    output_dir = args.output_dir
     limit_scroll_pages = args.limit_scroll_pages
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
@@ -92,8 +94,10 @@ def main() -> None:
 if __name__ == "__main__":
     import sys
 
+    sys.argv.append("--channel-name")
     sys.argv.append("@silverguru")
-    sys.argv.append("tmp")
+    sys.argv.append("--output")
+    sys.argv.append(os.path.join(os.getcwd(), "tmp", "@silverguru", "youtube"))
     sys.argv.append("--limit-scroll-pages")
     sys.argv.append("1")
     sys.argv.append("--download-limit")
