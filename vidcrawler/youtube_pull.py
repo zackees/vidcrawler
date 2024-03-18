@@ -6,7 +6,6 @@ Command entry point.
 
 import argparse
 import os
-from pathlib import Path
 
 from vidcrawler.library import Library, VidEntry
 from vidcrawler.youtube_bot import fetch_all_vids
@@ -22,7 +21,7 @@ def parse_args() -> argparse.Namespace:
         help="URL slug of the channel, example: @silverguru",
         required=True,
     )
-    parser.add_argument("--output-dir", type=str, help="Output directory", required=True)
+    parser.add_argument("--output", type=str, help="Output directory", required=True)
     parser.add_argument(
         "--limit-scroll-pages",
         type=int,
@@ -70,9 +69,9 @@ def main() -> None:
     if args.yt_dlp_uses_docker:
         os.environ["USE_DOCKER_YT_DLP"] = "1"
     channel_url = to_channel_url(args.channel_name)
-    #base_dir = Path(args.basedir)
-    #output_dir = str(base_dir / args.channel / "youtube")
-    output_dir = args.output_dir
+    # base_dir = Path(args.basedir)
+    # output_dir = str(base_dir / args.channel / "youtube")
+    output_dir = args.output
     limit_scroll_pages = args.limit_scroll_pages
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
