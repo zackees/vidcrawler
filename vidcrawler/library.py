@@ -31,6 +31,8 @@ def clean_filename(filename: str) -> str:
     filename = filename.strip()
     # strip out leading and trailing periods
     filename = filename.strip(".")
+    # strip out multiple periods
+    filename = re.sub(r"\.{2,}", ".", filename)
     # Split the filename into name and extension
     name_part, _, extension = filename.rpartition(".")
 
@@ -42,11 +44,18 @@ def clean_filename(filename: str) -> str:
     # Replace spaces or consecutive dashes with a single underscore
     cleaned_name = re.sub(r"\s+|-+", "_", cleaned_name)
 
+    # Replace multiple underscores with a single underscore
+    cleaned_name = re.sub(r"_+", "_", cleaned_name)
+
     # replace commas with underscores
     cleaned_name = cleaned_name.replace(",", "_")
 
-    # Replace multiple underscores with a single underscore
-    cleaned_name = re.sub(r"_+", "_", cleaned_name)
+    # remove single quotes
+    cleaned_name = cleaned_name.replace("'", "")
+
+    cleaned_name = cleaned_name.replace(":", "_")
+
+    # final problematic characters
 
     # Replace leading or trailing underscores with an empty string
     cleaned_name = cleaned_name.strip("_")
