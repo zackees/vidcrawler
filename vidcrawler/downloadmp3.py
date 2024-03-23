@@ -28,11 +28,15 @@ def yt_dlp_download_mp3(url: str, outmp3: str) -> None:
         temp_file = os.path.join(temp_dir, "temp.mp3")
         for _ in range(3):
             try:
-                cmd_list: list[str] = [
-                    "yt-dlp",
-                    url,
-                    "-f",
-                    "bestaudio",
+                cmd_list: list[str] = []
+                cmd_list += ["yt-dlp", url]
+                is_youtube = "youtube.com" in url or "youtu.be" in url
+                if is_youtube:
+                    cmd_list += [
+                        "-f",
+                        "bestaudio",
+                    ]
+                cmd_list += [
                     "--extract-audio",
                     "--audio-format",
                     "mp3",
