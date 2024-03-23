@@ -55,18 +55,7 @@ def docker_yt_dlp_download_mp3(url: str, outmp3: str) -> None:
     dockerfile = os.path.abspath(dockerfile)
     assert os.path.exists(dockerfile), f"dockerfile {dockerfile} does not exist"
     with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as temp_dir:
-        cmd_args = [
-            url,
-            "-f",
-            "bestaudio",
-            "--extract-audio",
-            "--audio-format",
-            "mp3",
-            "--output",
-            "/host_dir/temp.mp3",
-            "--update",
-            "--no-geo-bypass"
-        ]
+        cmd_args = [url, "-f", "bestaudio", "--extract-audio", "--audio-format", "mp3", "--output", "/host_dir/temp.mp3", "--update", "--no-geo-bypass"]
         docker_run(name="yt-dlp", dockerfile_or_url=dockerfile, cwd=temp_dir, cmd_list=cmd_args)
         shutil.copy(os.path.join(temp_dir, "temp.mp3"), outmp3)
 
@@ -86,6 +75,7 @@ def unit_test() -> None:
     download_mp3(url, outmp3)
     print(f"Downloaded {url} as {outmp3}")
     os.remove(outmp3)
+
 
 if __name__ == "__main__":
     unit_test()
