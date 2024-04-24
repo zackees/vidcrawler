@@ -30,8 +30,7 @@ class RumbleScraperTester(unittest.TestCase):
                 most_recent_date = parse_datetime(vid.date_published)
                 continue
             new_datetime = parse_datetime(vid.date_published)
-            if new_datetime > most_recent_date:
-                most_recent_date = new_datetime
+            most_recent_date = max(most_recent_date, new_datetime)
         # get time delta between most recent date and now in days
         bannons_last_show_in_days: float = 9999
         if most_recent_date is not None:
