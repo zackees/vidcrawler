@@ -115,6 +115,7 @@ This new command will a channel and all of it's files as mp3s. Great for transcr
 ```
 
 # Releases
+  * 1.0.35: Added `update_yt_dlp()` to allow the client to update the downloader.
   * 1.0.34: Upgraded `open-webdriver` to version `1.5.0` to avoid `yt-dlp` urllib incompatibility.
   * 1.0.28: youtube_pull now takes in --channel-name and --output, like the other pullers
   * 1.0.27: Fixed polluting path space from multiple added static-ffmpeg

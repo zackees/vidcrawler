@@ -72,6 +72,14 @@ def download_mp3(url: str, outmp3: str) -> None:
     return yt_dlp_download_mp3(url, outmp3)
 
 
+def update_yt_dlp() -> None:
+    docker_yt_dlp = os.environ.get("USE_DOCKER_YT_DLP", "0") == "1"
+    if not docker_yt_dlp:
+        return
+    cmd_list = ["yt-dlp", "--update"]
+    subprocess.run(cmd_list, check=True)
+
+
 def unit_test() -> None:
     """Run the tests."""
     url = "https://www.youtube.com/watch?v=3Zl9puhwiyw"
