@@ -19,6 +19,7 @@ from open_webdriver import open_webdriver  # type: ignore
 from selenium.common.exceptions import (
     StaleElementReferenceException as StaleElementException,
 )
+from selenium.webdriver.common.by import By
 
 from vidcrawler.library import VidEntry
 
@@ -129,7 +130,7 @@ def fetch_all_sources(yt_channel_url: str, limit: int = -1) -> Generator[str, No
                 return None
 
         def get_contents() -> list[str]:
-            vids = driver.find_elements_by_tag_name("ytd-rich-item-renderer")
+            vids = driver.find_elements(by=By.TAG_NAME, value="ytd-rich-item-renderer")
             with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
                 futures: list = []
                 for vid in vids:
@@ -144,15 +145,12 @@ def fetch_all_sources(yt_channel_url: str, limit: int = -1) -> Generator[str, No
         # All Chromium / web driver dependencies are now installed.
         driver.get(yt_channel_url)
         time.sleep(JS_SCROLL_TO_BOTTOM_WAIT)
-        for item in get_contents():
-            yield item
+        yield from get_contents()
         last_scroll_height = 0
         for index in range(max_index + 1):
             driver.execute_script(JS_SCROLL_TO_BOTTOM)
             time.sleep(JS_SCROLL_TO_BOTTOM_WAIT)
-            # yield get_contents()
-            for item in get_contents():
-                yield item
+            yield from get_contents()
             scroll_height = driver.execute_script("return document.documentElement.scrollHeight")
             print(f"#### {index}: scrolling for new content ####")
             scroll_diff = abs(scroll_height - last_scroll_height)
