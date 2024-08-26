@@ -1,6 +1,3 @@
 #!/bin/bash
 
-# why is this broken?
-# uv run pytest vidcrawler/testing -n auto -vv
-
-uv run pytest vidcrawler/testing
+uv run pytest vidcrawler/testing -n auto -vv

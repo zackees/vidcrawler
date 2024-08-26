@@ -21,29 +21,6 @@ VERSION = None
 with open(os.path.join(HERE, "README.md"), encoding="utf-8", mode="rt") as fd:
     LONG_DESCRIPTION = fd.read()
 
-with open(
-    os.path.join(HERE, "requirements.txt"), encoding="utf-8", mode="rt"
-) as fd:
-    REQUIREMENTS = [line.strip() for line in fd.readlines() if line.strip()]
-
-
-def get_requirements():
-    with open(
-        os.path.join(HERE, "requirements.txt"), encoding="utf-8", mode="rt"
-    ) as f:
-        packages = []
-        for line in f:
-            line = line.strip()
-            # let's also ignore empty lines and comments
-            if not line or line.startswith("#"):
-                continue
-            if "https://" in line:
-                tail = line.rsplit("/", 1)[1]
-                tail = tail.split("#")[0]
-                line = tail.replace("@", "==").replace(".git", "")
-            packages.append(line)
-    return packages
-
 
 def get_version() -> str:
     version_file = os.path.join(HERE, NAME, "version.py")
@@ -116,7 +93,6 @@ setup(
         "Operating System :: MacOS :: MacOS X",
         "Environment :: Console",
     ],
-    install_requires=REQUIREMENTS,
     packages=find_packages(
         exclude=["tests", "*.tests", "*.tests.*", "tests.*"]
     ),

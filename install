@@ -9,13 +9,12 @@ else
 fi
 
 uv venv --python 3.11
+uv run pip install -e .
 
 # if requirements.testing.txt exists then install it
 if [[ -f requirements.testing.txt ]]; then
   uv run pip install -r requirements.testing.txt
 fi
-
-uv run pip install -e .
 
 
 
