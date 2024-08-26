@@ -14,6 +14,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import traceback
 from typing import Any, List, Optional
 
 import feedparser  # type: ignore
@@ -82,7 +83,8 @@ def fetch_youtube_duration_str(url: str, cache_path: Optional[str]) -> str:
             return strfdelta(cached_duration)
         return ""  # Gracefully handle error condition.
     try:
-        html_doc = fetch_html(url)
+        fetch_result: FetchResult = fetch_html(url)
+        html_doc = fetch_result.html
         assert html_doc, f"{__file__}: Could not fetch html doc from {url}"
         soup = BeautifulSoup(html_doc, "html.parser")
         dom = soup.find("meta", {"itemprop": "duration"})
@@ -94,6 +96,12 @@ def fetch_youtube_duration_str(url: str, cache_path: Optional[str]) -> str:
         return out
     except requests.exceptions.HTTPError as e:
         sys.stderr.write(f'{__file__} Error while processing {url} for duration because "{str(e)}"\n')
+        _set_cached_duration(url, -1, cache_path)
+        return ""
+    except Exception as e:  # pylint: disable=broad-except
+        # stack_trce = sys.exc_info()[2]
+        stack_trce = traceback.format_exc()
+        sys.stderr.write(f'{__file__} Error while processing {url} for duration because "{str(e)}"\n\n{stack_trce}')
         _set_cached_duration(url, -1, cache_path)
         return ""
 
