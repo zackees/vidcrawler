@@ -290,8 +290,8 @@ def fetch_rumble_channel_all_partial_result(channel_name: str, channel: str, aft
                     fuzzy_date = parse_date(article)
                     date = parse_fuzzy_date(fuzzy_date)
                     title = parse_title(article)
-                    if after is not None and date > after:
-                        break
+                    if after is not None and date < after:
+                        continue
                     videoid = vid_src.split("/")[-1]
                     videoid = videoid.split("-")[0]
                     partial_video: PartialVideo = PartialVideo(

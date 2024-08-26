@@ -53,7 +53,7 @@ class RumbleScraperTester(unittest.TestCase):
 
     def test_fetch_plandemic_channel_range_query(self) -> None:
         # vid_list = fetch_rumble_channel_all_partial_result(channel_name="Plandemic", channel="PlandemicSeriesOfficial")
-        after_str = "June 19, 2024"
+        after_str = "May 5, 2024"
         parse_fmt = "%B %d, %Y"
         after: datetime = datetime.strptime(after_str, parse_fmt)
         vid_list: list[PartialVideo] = fetch_rumble_channel_all_partial_result(channel_name="Plandemic", channel="PlandemicSeriesOfficial", after=after)

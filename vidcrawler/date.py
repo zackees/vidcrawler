@@ -22,10 +22,12 @@ def now_local(tz_str: Optional[str] = None) -> datetime:
     return ts
 
 
-def _my_date_parse(date_string: str) -> datetime:
+def _my_date_parse(date_string: str | datetime) -> datetime:
+    if isinstance(date_string, datetime):
+        return date_string
     try:
         return datetime.fromisoformat(date_string)
-    except ValueError as verr:
+    except Exception as verr:  # pylint: disable=broad-except
         if "Invalid isoformat" in str(verr):
             return parse(date_string, fuzzy=True)
         raise
