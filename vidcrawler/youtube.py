@@ -20,12 +20,15 @@ from typing import Any, List, Optional
 import feedparser  # type: ignore
 import requests  # type: ignore
 from bs4 import BeautifulSoup  # type: ignore
+from certifi import where
 from keyvalue_sqlite import KeyValueSqlite as KeyValueDB  # type: ignore
 
 from .date import iso8601_duration_as_seconds, iso_fmt, now_local
 from .error import log_error
 from .fetch_html import FetchResult, fetch_html
 from .video_info import VideoInfo
+
+where()  # This is to avoid a warning from requests about SSL certs.
 
 _ENABLE_PROFILE_FETCH = False
 
