@@ -28,6 +28,7 @@ dependencies = [
     "docker-run-cmd>=1.0.13",
     "Pillow",
     "pip",
+
 ]
 
 [tool.mypy]

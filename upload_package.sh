@@ -1,1 +1,2 @@
-python setup.py upload
+
+uv run setup.py upload
