@@ -4,9 +4,9 @@ Crawls major videos sites like YouTube/Rumble/Bitchute/Brighteon for video conte
 
 ## Platform Unit Tests
 
-[![Actions Status](https://github.com/zackees/vidcrawler/workflows/MacOS_Tests/badge.svg)](https://github.com/zackees/vidcrawler/actions/workflows/test_macos.yml)
-[![Actions Status](https://github.com/zackees/vidcrawler/workflows/Win_Tests/badge.svg)](https://github.com/zackees/vidcrawler/actions/workflows/test_win.yml)
-[![Actions Status](https://github.com/zackees/vidcrawler/workflows/Ubuntu_Tests/badge.svg)](https://github.com/zackees/vidcrawler/actions/workflows/test_ubuntu.yml)
+[![MacOS_Tests](https://github.com/zackees/vidcrawler/actions/workflows/test_macos.yml/badge.svg)](https://github.com/zackees/vidcrawler/actions/workflows/test_macos.yml)
+[![Win_Tests](https://github.com/zackees/vidcrawler/actions/workflows/test_win.yml/badge.svg)](https://github.com/zackees/vidcrawler/actions/workflows/test_win.yml)
+[![Ubuntu_Tests](https://github.com/zackees/vidcrawler/actions/workflows/test_ubuntu.yml/badge.svg)](https://github.com/zackees/vidcrawler/actions/workflows/test_ubuntu.yml)
 
 ## Scraper Tests
 
