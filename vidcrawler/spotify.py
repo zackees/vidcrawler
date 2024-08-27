@@ -30,7 +30,7 @@ def fetch_spotify_today(channel_name: str, channel: str) -> List[VideoInfo]:
     now_datestr = iso_fmt(now_local())
     channel_url = f"https://open.spotify.com/show/{channel}"
     sys.stdout.write(f"Spotify crawler visiting {channel_name} ({channel_url})\n")
-    html_doc = fetch_html(channel_url)
+    html_doc = fetch_html(channel_url).html
     html_dom = BeautifulSoup(html_doc, "html.parser")
     music_doms = html_dom.findAll("meta", {"name": "music:song"})
     episode_urls = [e.attrs["content"] for e in music_doms]
