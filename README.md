@@ -12,6 +12,7 @@ Crawls major videos sites like YouTube/Rumble/Bitchute/Brighteon for video conte
 
 [![Scaper_Youtube](https://github.com/zackees/vidcrawler/actions/workflows/test_youtube.yml/badge.svg)](https://github.com/zackees/vidcrawler/actions/workflows/test_youtube.yml)
 [![Actions Status](https://github.com/zackees/vidcrawler/workflows/Scaper_Rumble/badge.svg)](https://github.com/zackees/vidcrawler/actions/workflows/test_rumble.yml)
+[![Scaper_Brighteon](https://github.com/zackees/vidcrawler/actions/workflows/test_brighteon.yml/badge.svg)](https://github.com/zackees/vidcrawler/actions/workflows/test_brighteon.yml)
 [![Actions Status](https://github.com/zackees/vidcrawler/workflows/Scraper_Gabtv/badge.svg)](https://github.com/zackees/vidcrawler/actions/workflows/test_gabtv.yml)
 [![Actions Status](https://github.com/zackees/vidcrawler/workflows/Scraper_Spotify/badge.svg)](https://github.com/zackees/vidcrawler/actions/workflows/test_spotify.yml)
 
