@@ -9,7 +9,7 @@ else
 fi
 
 uv venv --python 3.11 --seed
-uv run pip install -e .
+uv run pip install -e .[full]
 
 # if requirements.testing.txt exists then install it
 if [[ -f requirements.testing.txt ]]; then

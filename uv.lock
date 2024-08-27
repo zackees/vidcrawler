@@ -1176,16 +1176,16 @@ socks = [
 
 [[package]]
 name = "vidcrawler"
-version = "1.0.37"
+version = "1.0.38"
 source = { editable = "." }
 dependencies = [
     { name = "beautifulsoup4" },
+    { name = "certifi" },
     { name = "docker-run-cmd" },
     { name = "feedparser" },
     { name = "filelock" },
     { name = "isodate" },
     { name = "keyvalue-sqlite" },
-    { name = "open-webdriver" },
     { name = "pillow" },
     { name = "pytest-playwright" },
     { name = "python-dateutil" },
@@ -1195,19 +1195,25 @@ dependencies = [
     { name = "types-python-dateutil" },
     { name = "types-pytz" },
     { name = "types-requests" },
-    { name = "yt-dlp" },
     { name = "ytdlp-brighteon" },
+]
+
+[package.optional-dependencies]
+full = [
+    { name = "open-webdriver" },
+    { name = "yt-dlp" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "beautifulsoup4" },
+    { name = "certifi" },
     { name = "docker-run-cmd", specifier = ">=1.0.13" },
     { name = "feedparser" },
     { name = "filelock" },
     { name = "isodate" },
     { name = "keyvalue-sqlite" },
-    { name = "open-webdriver", specifier = ">=1.5.0" },
+    { name = "open-webdriver", marker = "extra == 'full'", specifier = ">=1.5.0" },
     { name = "pillow" },
     { name = "pytest-playwright" },
     { name = "python-dateutil" },
@@ -1217,7 +1223,7 @@ requires-dist = [
     { name = "types-python-dateutil" },
     { name = "types-pytz" },
     { name = "types-requests" },
-    { name = "yt-dlp", specifier = ">=2024.4.9" },
+    { name = "yt-dlp", marker = "extra == 'full'", specifier = ">=2024.8.6" },
     { name = "ytdlp-brighteon", specifier = ">=2023.10.3" },
 ]
 

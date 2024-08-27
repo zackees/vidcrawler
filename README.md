@@ -116,6 +116,7 @@ This new command will a channel and all of it's files as mp3s. Great for transcr
 ```
 
 # Releases
+  * 1.0.39: More pinned deps problems fixed.
   * 1.0.38: One of the scrapers has a pinned dependency, install it with [full]
   * 1.0.37: Misc fixes.
   * 1.0.36: Fixed youtube, rumble and brighteon parsers. Bitchute is still broken and now has rate limits.

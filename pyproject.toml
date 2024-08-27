@@ -20,7 +20,6 @@ dependencies = [
     "types-pytz",
     "types-requests",
     "filelock",
-    "yt-dlp>=2024.4.9",
     "static-ffmpeg",
     "pytest-playwright",
     "ytdlp-brighteon>=2023.10.3",
@@ -30,7 +29,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-full = ["open-webdriver>=1.5.0"]
+full = ["open-webdriver>=1.5.0", "yt-dlp>=2024.8.6"]
 
 [tool.mypy]
 # disable type checking
