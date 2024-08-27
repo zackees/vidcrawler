@@ -19,7 +19,6 @@ dependencies = [
     "types-python-dateutil",
     "types-pytz",
     "types-requests",
-    "open-webdriver>=1.5.0",
     "filelock",
     "yt-dlp>=2024.4.9",
     "static-ffmpeg",
@@ -29,6 +28,9 @@ dependencies = [
     "Pillow",
     "certifi"
 ]
+
+[project.optional-dependencies]
+full = ["open-webdriver>=1.5.0"]
 
 [tool.mypy]
 # disable type checking
