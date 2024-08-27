@@ -1,4 +1,4 @@
-
+#!/bin/bash
 set -e
 
 #if is windows then use pip to install uv, else use pip3
@@ -8,7 +8,7 @@ else
   pip3 install uv
 fi
 
-uv venv --python 3.11
+uv venv --python 3.11 --seed
 uv run pip install -e .
 
 # if requirements.testing.txt exists then install it
