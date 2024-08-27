@@ -23,8 +23,10 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-pip-
     - name: Install dependencies
+      shell: bash
       run: |
         ./install
     - name: Run tests
+      shell: bash
       run: |
         uv run vidcrawler/testing/test_scraper_youtube.py
