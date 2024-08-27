@@ -26,7 +26,10 @@ jobs:
       shell: bash
       run: |
         ./install
+
     - name: Run tests
-      shell: bash
+      shell: cmd
+      env:
+        PYTHONIOENCODING: utf-8
       run: |
-        uv run vidcrawler/testing/test_scraper_youtube.py
+        chcp 65001 && uv run vidcrawler/testing/test_scraper_youtube.py
