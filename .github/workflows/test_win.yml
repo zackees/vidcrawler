@@ -27,4 +27,4 @@ jobs:
         ./install
     - name: Run tests
       run: |
-        ./test
+        uv run vidcrawler/testing/test_scraper_youtube.py
