@@ -29,4 +29,4 @@ jobs:
       env:
         RUN_ALL_TESTS: '1'
       run: |
-        python vidcrawler/testing/test_scraper_spotify.py
+        uv run vidcrawler/testing/test_scraper_spotify.py

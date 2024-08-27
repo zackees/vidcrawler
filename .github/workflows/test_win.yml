@@ -27,4 +27,4 @@ jobs:
         ./install
     - name: Run tests
       run: |
-        pytest
+        ./test

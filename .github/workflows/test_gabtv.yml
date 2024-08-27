@@ -27,4 +27,4 @@ jobs:
         ./install
     - name: Run tests
       run: |
-        python vidcrawler/testing/test_scraper_gabtv.py
+        uv run vidcrawler/testing/test_scraper_gabtv.py
