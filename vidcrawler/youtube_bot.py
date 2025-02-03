@@ -93,7 +93,6 @@ def parse_youtube_videos(div_strs: list[str]) -> list[VidEntry]:
             href = URL_BASE + href
             title = sanitize_filepath(title.strip())
         except KeyboardInterrupt:
-            global _ERRORS  # pylint: disable=global-statement
             _ERRORS = True
             _thread.interrupt_main()
             raise
@@ -120,11 +119,13 @@ def clear_source_cache() -> None:
 
 
 def fetch_all_sources(yt_channel_url: str, limit: int = -1) -> Generator[str, None, None]:
+    global _ERRORS
     clear_source_cache()
     max_index = limit if limit > 0 else 1000
     with open_webdriver(headless=HEADLESS) as driver:
 
         def get_vid_attribute(vid: Any) -> str | None:
+            global _ERRORS
             if _ERRORS:
                 return None
             try:
@@ -138,7 +139,6 @@ def fetch_all_sources(yt_channel_url: str, limit: int = -1) -> Generator[str, No
                     pass
                 return str(vid.get_attribute("outerHTML"))
             except KeyboardInterrupt:
-                global _ERRORS
                 _ERRORS = True
                 _thread.interrupt_main()
                 raise
