@@ -1,5 +1,5 @@
 """
-    Date utility functions.
+Date utility functions.
 """
 
 # pylint: disable=invalid-name

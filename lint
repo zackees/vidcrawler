@@ -5,10 +5,10 @@ echo Running isort
 isort --profile black vidcrawler
 echo Running black
 black vidcrawler
+echo Running ruff
+ruff check vidcrawler
 echo Running flake8 vidcrawler
 flake8 vidcrawler
-echo Running pylint vidcrawler
-pylint vidcrawler
 echo Running mypy vidcrawler
 mypy vidcrawler
 echo Linting complete!

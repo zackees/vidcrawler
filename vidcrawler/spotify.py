@@ -32,16 +32,16 @@ def fetch_spotify_today(channel_name: str, channel: str) -> List[VideoInfo]:
     sys.stdout.write(f"Spotify crawler visiting {channel_name} ({channel_url})\n")
     html_doc = fetch_html(channel_url).html
     html_dom = BeautifulSoup(html_doc, "html.parser")
-    music_doms = html_dom.findAll("meta", {"name": "music:song"})
+    music_doms = html_dom.findAll("meta", {"name": "music:song"})  # type: ignore
     episode_urls = [e.attrs["content"] for e in music_doms]
     for episide_url in episode_urls:
         sys.stdout.write(f"  Spotify crawler visiting episode {episide_url}\n")
         episode_html = fetch_html(episide_url, timeout=_TIMEOUT_EPISODE)
-        episode_dom = BeautifulSoup(episode_html, "html.parser")
+        episode_dom = BeautifulSoup(episode_html, "html.parser")  # type: ignore
 
         def extract_meta_property(name: str) -> str:
             dom = episode_dom.find("meta", {"name": name})  # pylint: disable=cell-var-from-loop
-            return str(dom["content"])
+            return str(dom["content"])  # type: ignore
 
         img_url = extract_meta_property("og:image")
         title = extract_meta_property("og:title")

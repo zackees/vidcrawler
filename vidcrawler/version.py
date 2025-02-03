@@ -1,3 +1,0 @@
-"""VERSION FILE"""
-
-VERSION = "1.0.41"

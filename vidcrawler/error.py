@@ -1,5 +1,5 @@
 """
-    Stub for error logging.
+Stub for error logging.
 """
 
 import sys

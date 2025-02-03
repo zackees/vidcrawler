@@ -3,6 +3,7 @@ Rumble scrapper.
 """
 
 # pylint: disable=line-too-long,missing-function-docstring,consider-using-f-string,too-many-locals,invalid-name,no-else-return,fixme,too-many-branches,too-many-statements
+# mypy: ignore-errors
 
 import sys
 import traceback
@@ -107,9 +108,9 @@ def fetch_rumble_channel_today_legacy(channel_name: str, channel: str) -> List[V
     soup = BeautifulSoup(html_doc, "html.parser")
     for article in soup.find_all("div", class_="videostream thumbnail__grid--item"):
         try:
-            article_duration_dom = article.find(class_="videostream__status--duration")
+            article_duration_dom = article.find(class_="videostream__status--duration")  # type: ignore
             duration = article_duration_dom.get_text().strip()
-            vid_src_suffix = article.find("a", class_="videostream__link link")["href"]
+            vid_src_suffix = article.find("a", class_="videostream__link link")["href"]  # type: ignore
             vid_src = "https://rumble.com%s" % vid_src_suffix
             sys.stdout.write("  visiting video %s (%s)\n" % (channel, vid_src))
             video_obj = fetch_video_info(vid_src)

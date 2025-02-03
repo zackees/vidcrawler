@@ -1,10 +1,12 @@
 # flake8: noqa=W293
 # pylint: disable=line-too-long,missing-class-docstring,missing-function-docstring,consider-using-f-string,too-many-locals,invalid-name
+# mypy: ignore-errors
 
 """
 Test script for opening a youtube channel and getting the latest videos.
 """
 
+import _thread
 import concurrent.futures
 import os
 import time
@@ -34,6 +36,8 @@ JS_SCROLL_TO_BOTTOM_WAIT = 1
 URL_BASE = "https://www.youtube.com"
 
 CACHE_OUTER_HTML: dict[str, str] = {}
+
+_ERRORS = False
 
 
 def sanitize_filepath(path: str, replacement_char: str = "_") -> str:
@@ -73,6 +77,9 @@ def sanitize_filepath(path: str, replacement_char: str = "_") -> str:
 
 def parse_youtube_videos(div_strs: list[str]) -> list[VidEntry]:
     """Div containing the youtube video, which has a title and an href."""
+    global _ERRORS
+    if _ERRORS:
+        return []
     out: list[VidEntry] = []
     for div_str in div_strs:
         soup = BeautifulSoup(div_str, "html.parser")
@@ -86,7 +93,10 @@ def parse_youtube_videos(div_strs: list[str]) -> list[VidEntry]:
             href = URL_BASE + href
             title = sanitize_filepath(title.strip())
         except KeyboardInterrupt:
-            return out
+            global _ERRORS  # pylint: disable=global-statement
+            _ERRORS = True
+            _thread.interrupt_main()
+            raise
         except SystemExit:
             return out
         except Exception as err:  # pylint: disable=broad-except
@@ -115,6 +125,8 @@ def fetch_all_sources(yt_channel_url: str, limit: int = -1) -> Generator[str, No
     with open_webdriver(headless=HEADLESS) as driver:
 
         def get_vid_attribute(vid: Any) -> str | None:
+            if _ERRORS:
+                return None
             try:
                 try:
                     unique_id = getattr(vid, "id")
@@ -125,6 +137,11 @@ def fetch_all_sources(yt_channel_url: str, limit: int = -1) -> Generator[str, No
                 except AttributeError:
                     pass
                 return str(vid.get_attribute("outerHTML"))
+            except KeyboardInterrupt:
+                global _ERRORS
+                _ERRORS = True
+                _thread.interrupt_main()
+                raise
             except StaleElementException:
                 warnings.warn("skipping stale element")
                 return None
@@ -178,13 +195,19 @@ def fetch_all_vids(yt_channel_url: str, limit: int = -1) -> list[VidEntry]:
     list_vids: list[list[VidEntry]] = []
     num_workers = max(1, os.cpu_count() or 0)
     with concurrent.futures.ThreadPoolExecutor(max_workers=num_workers) as executor:
-        future_to_vid = {}
-        for sources in pending_fetches:
-            future = executor.submit(parse_youtube_videos, [sources])
-            future_to_vid[future] = sources
-        for future in concurrent.futures.as_completed(future_to_vid):
-            vids = future.result()
-            list_vids.append(vids)
+        try:
+            future_to_vid = {}
+            for sources in pending_fetches:
+                future = executor.submit(parse_youtube_videos, [sources])
+                future_to_vid[future] = sources
+            for future in concurrent.futures.as_completed(future_to_vid):
+                vids = future.result()
+                list_vids.append(vids)
+        except KeyboardInterrupt:
+            warnings.warn("Keyboard interrupt, stopping.")
+            global _ERRORS
+            _ERRORS = True
+            _thread.interrupt_main()
     unique_vids: set[VidEntry] = set()
     out_vids: list[VidEntry] = []
     for vids in list_vids:

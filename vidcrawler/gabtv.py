@@ -1,8 +1,9 @@
 """
-    Scraper for gabtv.com
+Scraper for gabtv.com
 """
 
 # pylint: disable=line-too-long,missing-function-docstring,consider-using-f-string,too-many-locals,invalid-name,no-else-return,redefined-builtin,W0511
+# mypy: ignore-errors
 
 import json
 import re

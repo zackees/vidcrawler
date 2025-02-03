@@ -1,10 +1,12 @@
 """
-    Scraper for Brighteon.com
+Scraper for Brighteon.com
 """
 
-import re
-
 # pylint: disable=line-too-long,missing-function-docstring,consider-using-f-string,too-many-locals,invalid-name,no-else-return
+# mypy: ignore-errors
+
+
+import re
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from functools import partial

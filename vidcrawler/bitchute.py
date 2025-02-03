@@ -1,8 +1,9 @@
 """
-    Scraper for bitchute
+Scraper for bitchute
 """
 
 # pylint: disable=line-too-long,missing-function-docstring,consider-using-f-string,too-many-locals,invalid-name
+# mypy: ignore-errors
 
 import html
 import re

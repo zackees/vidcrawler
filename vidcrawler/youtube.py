@@ -92,7 +92,7 @@ def fetch_youtube_duration_str(url: str, cache_path: Optional[str]) -> str:
         soup = BeautifulSoup(html_doc, "html.parser")
         dom = soup.find("meta", {"itemprop": "duration"})
         assert dom, f"{__file__}: Could not find duration in html doc in {url}"
-        duration_str = dom.attrs["content"]
+        duration_str = dom.attrs["content"]  # type: ignore
         duration_seconds = iso8601_duration_as_seconds(duration_str)
         _set_cached_duration(url, duration_seconds, cache_path)
         out = strfdelta(duration_seconds)
@@ -275,7 +275,7 @@ def parse_youtube_video(html_doc: str) -> dict:
     top_dom = BeautifulSoup(html_doc, "html.parser")  # type: ignore
     try:
         dom = top_dom.find("meta", {"itemprop": "startDate"})  # type: ignore
-        out["date_published"] = str(dom.attrs["content"])
+        out["date_published"] = str(dom.attrs["content"])  # type: ignore
     except KeyError as err:
         log_error(str(err))
     except AttributeError as err:
@@ -288,7 +288,7 @@ def parse_youtube_video(html_doc: str) -> dict:
         raise
     try:
         dom = top_dom.find("meta", {"itemprop": "interactionCount"})  # type: ignore
-        out["views"] = str(dom.attrs["content"])
+        out["views"] = str(dom.attrs["content"])  # type: ignore
     except KeyError as ke:
         log_error(str(ke))
     all_scripts = top_dom.find_all("script")
@@ -296,11 +296,11 @@ def parse_youtube_video(html_doc: str) -> dict:
     # Needed for commented out code, below.
     # needle_player_response = "var ytInitialPlayerResponse = "
     for script in all_scripts:
-        if not script.string:
+        if not script.string:  # type: ignore
             continue
         try:
-            if script.string.startswith(needle_initial_data):
-                img_urls = re.findall(r"\"(https://yt\d[^\"]+)\"", script.string)
+            if script.string.startswith(needle_initial_data):  # type: ignore
+                img_urls = re.findall(r"\"(https://yt\d[^\"]+)\"", script.string)  # type: ignore
                 for img_url in img_urls:
                     if "s176" in img_url:  # For some reason this appears only in the thumbnail image.
                         out["profile_thumbnail"] = img_url

@@ -1,3 +1,4 @@
 #!/bin/bash
 rm -rf .venv
 rm -rf activate
+rm -rf uv.lock

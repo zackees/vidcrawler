@@ -1,5 +1,5 @@
 """
-    Trampoline to get tests.
+Trampoline to get tests.
 """
 
 

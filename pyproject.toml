@@ -6,7 +6,7 @@ name = "vidcrawler"
 description = "Video Crawler"
 readme = "README.md"
 requires-python = ">=3.10"
-dynamic = ["version"]
+version = "1.0.41"
 license = { text = "MIT" }
 dependencies = [
     "feedparser",
