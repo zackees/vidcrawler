@@ -6,7 +6,7 @@ name = "vidcrawler"
 description = "Video Crawler"
 readme = "README.md"
 requires-python = ">=3.10"
-version = "1.0.41"
+version = "1.0.42"
 license = { text = "MIT" }
 dependencies = [
     "feedparser",
@@ -25,7 +25,8 @@ dependencies = [
     "ytdlp-brighteon>=2023.10.3",
     "docker-run-cmd>=1.0.13",
     "Pillow",
-    "certifi"
+    "certifi",
+    "appdirs",
 ]
 
 [project.optional-dependencies]

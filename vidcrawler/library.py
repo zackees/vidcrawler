@@ -10,9 +10,18 @@ import warnings
 from dataclasses import dataclass
 from datetime import datetime
 
+from appdirs import user_data_dir
 from filelock import FileLock
 
 from vidcrawler.downloadmp3 import download_mp3
+
+
+def _get_library_json_lock_path() -> str:
+    """Get the library json path."""
+    return os.path.join(user_data_dir("vidcrawler"), "library.json.lock")
+
+
+_FILE_LOCK = FileLock(_get_library_json_lock_path())
 
 
 def clean_filename(filename: str) -> str:
@@ -196,8 +205,7 @@ def merge_into_library(library_json_path: str, vids: list[VidEntry]) -> None:
         title = vid.title
         file_path = vid.file_path
         found_entries.append(VidEntry(url=vid.url, title=title, file_path=file_path, date=vid.date))
-    file_lock = library_json_path + ".lock"
-    with FileLock(file_lock):
+    with _FILE_LOCK:
         existing_entries = load_json(library_json_path)
         for found in found_entries:
             if found not in existing_entries:
