@@ -2,6 +2,7 @@
 Download a youtube video as an mp3.
 """
 
+import _thread
 import os
 import shutil
 import subprocess
@@ -14,6 +15,14 @@ from static_ffmpeg import add_paths
 FFMPEG_PATH_ADDED = False
 
 
+def _yt_exe_path() -> str:
+    """Return the path to the yt-dlp executable."""
+    yt_exe = shutil.which("yt-dlp")
+    if yt_exe:
+        return yt_exe
+    raise FileNotFoundError("yt-dlp not found.")
+
+
 def yt_dlp_download_mp3(url: str, outmp3: str) -> None:
     """Download the youtube video as an mp3."""
     global FFMPEG_PATH_ADDED  # pylint: disable=global-statement
@@ -24,12 +33,14 @@ def yt_dlp_download_mp3(url: str, outmp3: str) -> None:
     if par_dir:
         os.makedirs(par_dir, exist_ok=True)
 
+    yt_exe = _yt_exe_path()
+
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_file = os.path.join(temp_dir, "temp.mp3")
         for _ in range(3):
             try:
                 cmd_list: list[str] = []
-                cmd_list += ["yt-dlp", url]
+                cmd_list += [yt_exe, url]
                 is_youtube = "youtube.com" in url or "youtu.be" in url
                 if is_youtube:
                     cmd_list += [
@@ -46,6 +57,9 @@ def yt_dlp_download_mp3(url: str, outmp3: str) -> None:
                 subprocess.run(cmd_list, check=True)
                 shutil.copy(temp_file, outmp3)
                 return
+            except KeyboardInterrupt:
+                _thread.interrupt_main()
+                raise
             except subprocess.CalledProcessError as cpe:
                 print(f"Failed to download {url} as mp3: {cpe}")
                 continue
@@ -74,9 +88,10 @@ def download_mp3(url: str, outmp3: str) -> None:
 
 def update_yt_dlp() -> None:
     docker_yt_dlp = os.environ.get("USE_DOCKER_YT_DLP", "0") == "1"
-    if not docker_yt_dlp:
+    if docker_yt_dlp:
         return
-    cmd_list = ["yt-dlp", "--update"]
+    yt_exe = _yt_exe_path()
+    cmd_list = [yt_exe, "--update"]
     subprocess.run(cmd_list, check=True)
 
 
