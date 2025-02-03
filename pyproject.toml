@@ -5,7 +5,7 @@ requires = ["setuptools", "wheel"]
 name = "vidcrawler"
 description = "Video Crawler"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dynamic = ["version"]
 license = { text = "MIT" }
 dependencies = [

@@ -1,5 +1,6 @@
 import json
 import re
+import shutil
 import subprocess
 import warnings
 from typing import Any
@@ -7,15 +8,23 @@ from typing import Any
 from vidcrawler.types import ChannelId, VideoId
 
 
+def _yt_dlp_exe() -> str:
+    yt_exe = shutil.which("yt-dlp")
+    if yt_exe is None:
+        raise FileNotFoundError("yt-dlp not found in PATH")
+    return yt_exe
+
+
 def fetch_channel_info_ytdlp(video_url: str) -> dict[Any, Any]:
     """Fetch the info."""
     # yt-dlp -J "VIDEO_URL" > video_info.json
+    yt_exe = _yt_dlp_exe()
     cmd_list = [
-        "yt-dlp",
+        yt_exe,
         "-J",
         video_url,
     ]
-    completed_proc = subprocess.run(cmd_list, capture_output=True, text=True, shell=True, check=True)
+    completed_proc = subprocess.run(cmd_list, capture_output=True, text=True, shell=False, check=True)
     if completed_proc.returncode != 0:
         stderr = completed_proc.stderr
         warnings.warn(f"Failed to run yt-dlp with args: {cmd_list}, stderr: {stderr}")
@@ -30,12 +39,13 @@ def fetch_channel_info_ytdlp(video_url: str) -> dict[Any, Any]:
 
 
 def fetch_video_info(video_url: str) -> dict:
+    yt_exe = _yt_dlp_exe()
     cmd_list = [
-        "yt-dlp",
+        yt_exe,
         "-J",
         video_url,
     ]
-    completed_proc = subprocess.run(cmd_list, capture_output=True, text=True, shell=True, check=True)
+    completed_proc = subprocess.run(cmd_list, capture_output=True, text=True, shell=False, check=True)
     if completed_proc.returncode != 0:
         stderr = completed_proc.stderr
         warnings.warn(f"Failed to run yt-dlp with args: {cmd_list}, stderr: {stderr}")
@@ -52,13 +62,14 @@ def fetch_video_info(video_url: str) -> dict:
 def fetch_channel_url_ytdlp(video_url: str) -> str:
     """Fetch the info."""
     # yt-dlp -J "VIDEO_URL" > video_info.json
+    yt_exe = _yt_dlp_exe()
     cmd_list = [
-        "yt-dlp",
+        yt_exe,
         "--print",
         "channel_url",
         video_url,
     ]
-    completed_proc = subprocess.run(cmd_list, capture_output=True, text=True, timeout=10, shell=True, check=True)
+    completed_proc = subprocess.run(cmd_list, capture_output=True, text=True, timeout=10, shell=False, check=True)
     if completed_proc.returncode != 0:
         stderr = completed_proc.stderr
         warnings.warn(f"Failed to run yt-dlp with args: {cmd_list}, stderr: {stderr}")
@@ -86,14 +97,15 @@ def fetch_videos_from_channel(channel_url: str) -> list[VideoId]:
     """Fetch the videos from a channel."""
     # yt-dlp -J "CHANNEL_URL" > channel_info.json
     # cmd = f'yt-dlp -i --get-id "https://www.youtube.com/channel/{channel_id}"'
-    cmd_list = ["yt-dlp", "--print", "id", channel_url]
+    yt_exe = _yt_dlp_exe()
+    cmd_list = [yt_exe, "--print", "id", channel_url]
     cms_str = subprocess.list2cmdline(cmd_list)
     print(f"Running: {cms_str}")
     completed_proc = subprocess.run(
         cmd_list,
         capture_output=True,
         text=True,
-        shell=True,
+        shell=False,
         check=True,
     )
     stdout = completed_proc.stdout
