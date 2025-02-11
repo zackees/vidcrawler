@@ -6,7 +6,7 @@ name = "vidcrawler"
 description = "Video Crawler"
 readme = "README.md"
 requires-python = ">=3.10"
-version = "1.0.44"
+version = "1.0.45"
 license = { text = "MIT" }
 
 dependencies = [
@@ -32,7 +32,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-full = ["open-webdriver>=1.5.0", "yt-dlp>=2024.8.6"]
+full = ["open-webdriver>=1.5.0", "yt-dlp>=2025.1.26"]
 
 [tool.mypy]
 # disable type checking
