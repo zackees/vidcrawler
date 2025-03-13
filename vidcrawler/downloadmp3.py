@@ -96,7 +96,6 @@ def update_yt_dlp(check=True) -> bool:
     cp = subprocess.run(cmd_list, check=False, capture_output=True)
     cps = [cp]
     if cp.returncode != 0:
-        warnings.warn(f"Failed to update yt-dlp: {cp}")
         python_exe = sys.executable
         cmd_list_pip_update = [python_exe, "-m", "pip", "install", "--upgrade", "yt-dlp"]
         cp = subprocess.run(cmd_list_pip_update, check=False, capture_output=True)
