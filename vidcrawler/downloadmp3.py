@@ -6,6 +6,7 @@ import _thread
 import os
 import shutil
 import subprocess
+import sys
 import tempfile
 import warnings
 
@@ -86,13 +87,25 @@ def download_mp3(url: str, outmp3: str) -> None:
     return yt_dlp_download_mp3(url, outmp3)
 
 
-def update_yt_dlp() -> None:
+def update_yt_dlp(check=True) -> bool:
     docker_yt_dlp = os.environ.get("USE_DOCKER_YT_DLP", "0") == "1"
     if docker_yt_dlp:
-        return
+        return False
     yt_exe = _yt_exe_path()
     cmd_list = [yt_exe, "--update"]
-    subprocess.run(cmd_list, check=True)
+    cp = subprocess.run(cmd_list, check=False)
+    if cp.returncode != 0:
+        warnings.warn(f"Failed to update yt-dlp: {cp}")
+
+        python_exe = sys.executable
+        cmd_list_pip_update = [python_exe, "-m", "pip", "install", "--upgrade", "yt-dlp"]
+        cp = subprocess.run(cmd_list_pip_update, check=False)
+        if cp.returncode != 0:
+            if check:
+                raise RuntimeError(f"Failed to update yt-dlp: {cp}")
+            else:
+                warnings.warn(f"Failed to update yt-dlp: {cp}")
+    return cp.returncode == 0
 
 
 def unit_test() -> None:

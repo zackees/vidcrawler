@@ -6,7 +6,6 @@ name = "vidcrawler"
 description = "Video Crawler"
 readme = "README.md"
 requires-python = ">=3.10"
-version = "1.0.45"
 license = { text = "MIT" }
 
 dependencies = [
@@ -30,6 +29,8 @@ dependencies = [
     "appdirs",
     "open-webdriver>=1.5.0"
 ]
+
+version = "1.0.46"
 
 [project.optional-dependencies]
 full = ["open-webdriver>=1.5.0", "yt-dlp>=2025.1.26"]
