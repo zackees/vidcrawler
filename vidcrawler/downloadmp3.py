@@ -93,18 +93,26 @@ def update_yt_dlp(check=True) -> bool:
         return False
     yt_exe = _yt_exe_path()
     cmd_list = [yt_exe, "--update"]
-    cp = subprocess.run(cmd_list, check=False)
+    cp = subprocess.run(cmd_list, check=False, capture_output=True)
+    cps = [cp]
     if cp.returncode != 0:
         warnings.warn(f"Failed to update yt-dlp: {cp}")
-
         python_exe = sys.executable
         cmd_list_pip_update = [python_exe, "-m", "pip", "install", "--upgrade", "yt-dlp"]
-        cp = subprocess.run(cmd_list_pip_update, check=False)
+        cp = subprocess.run(cmd_list_pip_update, check=False, capture_output=True)
+        cps.append(cp)
         if cp.returncode != 0:
+            stdout1 = cps[0].stdout.decode("utf-8")
+            stderr1 = cps[0].stderr.decode("utf-8")
+            stdout2 = cps[1].stdout.decode("utf-8")
+            stderr2 = cps[1].stderr.decode("utf-8")
+            msg = "Failed to update yt-dlp:\n"
+            msg += f" first command:\n  {cps[0].args}\n  {stdout1}\n  {stderr1}\n"
+            msg += f" second command:\n  {cps[1].args}\n  {stdout2}\n  {stderr2}\n"
             if check:
-                raise RuntimeError(f"Failed to update yt-dlp: {cp}")
+                raise RuntimeError(msg)
             else:
-                warnings.warn(f"Failed to update yt-dlp: {cp}")
+                warnings.warn(msg)
     return cp.returncode == 0
 
 
