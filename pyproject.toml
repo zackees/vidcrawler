@@ -11,7 +11,7 @@ license = { text = "MIT" }
 dependencies = [
     "feedparser",
     "pytz",
-    "beautifulsoup4",
+    "beautifulsoup4>=4.13.3",
     "keyvalue_sqlite",
     "python-dateutil",
     "isodate",
@@ -30,7 +30,7 @@ dependencies = [
     "open-webdriver>=1.5.0"
 ]
 
-version = "1.0.48"
+version = "1.0.49"
 
 [project.optional-dependencies]
 full = ["open-webdriver>=1.5.0", "yt-dlp>=2025.1.26"]
