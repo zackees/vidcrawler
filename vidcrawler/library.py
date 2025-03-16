@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from appdirs import user_data_dir
-from filelock import FileLock
+from filelock import SoftFileLock as FileLock
 
 from vidcrawler.downloadmp3 import download_mp3
 
