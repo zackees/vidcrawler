@@ -43,10 +43,16 @@ def yt_dlp_download_mp3(url: str, outmp3: str) -> None:
                 cmd_list: list[str] = []
                 cmd_list += [yt_exe, url]
                 is_youtube = "youtube.com" in url or "youtu.be" in url
+                is_rumble = "rumble.com" in url
                 if is_youtube:
                     cmd_list += [
                         "-f",
                         "bestaudio",
+                    ]
+                if is_rumble:
+                    cmd_list += [
+                        "--impersonate",
+                        "chrome-120",
                     ]
                 cmd_list += [
                     "--extract-audio",

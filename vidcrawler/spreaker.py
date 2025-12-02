@@ -47,8 +47,8 @@ def rss_element_to_video_info(channel_name: str, rss_element: dict) -> VideoInfo
 def fetch_spreaker_today(channel_name: str, channel: str) -> List[VideoInfo]:
     url = f"https://www.spreaker.com/show/{channel}/episodes/feed"
     sys.stdout.write("Spreaker visiting %s (%s)\n" % (channel, url))
-    content = fetch_html(url)
-    feed = feedparser.parse(content)
+    fetch_result = fetch_html(url)
+    feed = feedparser.parse(fetch_result.html)
     output: List[VideoInfo] = []
     for entry in feed.entries:
         try:

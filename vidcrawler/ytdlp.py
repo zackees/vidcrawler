@@ -45,6 +45,9 @@ def fetch_video_info(video_url: str) -> dict:
         "-J",
         video_url,
     ]
+    # Add browser impersonation for Rumble to avoid HTTP 403 errors
+    if "rumble.com" in video_url:
+        cmd_list.extend(["--impersonate", "chrome-120"])
     completed_proc = subprocess.run(cmd_list, capture_output=True, text=True, shell=False, check=True)
     if completed_proc.returncode != 0:
         stderr = completed_proc.stderr
@@ -99,6 +102,9 @@ def fetch_videos_from_channel(channel_url: str) -> list[VideoId]:
     # cmd = f'yt-dlp -i --get-id "https://www.youtube.com/channel/{channel_id}"'
     yt_exe = _yt_dlp_exe()
     cmd_list = [yt_exe, "--print", "id", channel_url]
+    # Add browser impersonation for Rumble to avoid HTTP 403 errors
+    if "rumble.com" in channel_url:
+        cmd_list.extend(["--impersonate", "chrome-120"])
     cms_str = subprocess.list2cmdline(cmd_list)
     print(f"Running: {cms_str}")
     completed_proc = subprocess.run(
@@ -106,9 +112,11 @@ def fetch_videos_from_channel(channel_url: str) -> list[VideoId]:
         capture_output=True,
         text=True,
         shell=False,
-        check=True,
+        check=False,
     )
+    # Check if we got any output before checking return code
     stdout = completed_proc.stdout
+    stderr = completed_proc.stderr
     lines = stdout.splitlines()
     out_channel_ids: list[VideoId] = []
     for line in lines:
@@ -121,6 +129,17 @@ def fetch_videos_from_channel(channel_url: str) -> list[VideoId]:
             warnings.warn(line)
             continue
         out_channel_ids.append(VideoId(line))
+
+    # If we got video IDs despite warnings, return them
+    if out_channel_ids:
+        if completed_proc.returncode != 0:
+            warnings.warn(f"yt-dlp returned exit code {completed_proc.returncode} but extracted {len(out_channel_ids)} video IDs. Stderr: {stderr}")
+        return out_channel_ids
+
+    # If we didn't get any video IDs and there was an error, raise it
+    if completed_proc.returncode != 0:
+        raise subprocess.CalledProcessError(completed_proc.returncode, cmd_list, output=stdout, stderr=stderr)
+
     return out_channel_ids
 
 

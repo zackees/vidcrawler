@@ -21,8 +21,11 @@ _PATTERN_DATA_EPISODE_ID = re.compile('data-episode-id="([^"]*)"')
 
 
 def _fetch_html_using_curl(url: str) -> str:
-    out: bytes = subprocess.check_output("curl --max-time 10 -s -X GET " + url, shell=True)
-    return out.decode("utf-8")
+    try:
+        out: bytes = subprocess.check_output("curl --max-time 10 -s -X GET " + url, shell=True)
+        return out.decode("utf-8")
+    except subprocess.CalledProcessError as e:
+        raise RuntimeError(f"Failed to fetch {url} with curl: exit code {e.returncode}") from e
 
 
 def fetch_views(channel: str) -> Dict[str, str]:
